@@ -2,9 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SuperBob – Vyre Demo</title>
+  <title>SuperBob 2.0 – Vyre Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -16,98 +24,557 @@
       justify-content: center;
       min-height: 100vh;
     }
+
+    .shell {
+      width: 100%;
+      max-width: 440px;
+      padding: 16px;
+    }
+
     .card {
-      max-width: 420px;
-      width: 90%;
       background: rgba(15, 23, 42, 0.96);
       border-radius: 18px;
-      padding: 20px 18px 16px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 24px 45px rgba(0, 0, 0, 0.6);
+      padding: 18px 16px 14px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      backdrop-filter: blur(18px);
     }
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .bob-avatar {
+      width: 52px;
+      height: 52px;
       border-radius: 999px;
-      font-size: 11px;
-      letter-spacing: 0.08em;
+      background: conic-gradient(from 180deg, #38bdf8, #a855f7, #f97316, #38bdf8);
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bob-avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: radial-gradient(circle at 30% 20%, #f9fafb, #e5e7eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 23px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .title-block {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .title-block h1 {
+      font-size: 19px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 10px;
       text-transform: uppercase;
-      background: rgba(56, 189, 248, 0.08);
-      color: #38bdf8;
-      margin-bottom: 8px;
+      letter-spacing: 0.09em;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.13);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.35);
     }
-    h1 {
-      font-size: 20px;
-      margin: 4px 0 10px;
-      color: #f9fafb;
-    }
-    p {
-      font-size: 14px;
-      line-height: 1.5;
-      margin: 6px 0;
-      color: #e5e7eb;
-    }
-    .highlight {
-      color: #a855f7;
-      font-weight: 600;
-    }
-    .small {
+
+    .subtitle {
       font-size: 12px;
       color: #9ca3af;
+      margin-top: 2px;
     }
-    .btn-row {
-      margin-top: 16px;
+
+    .chip-row {
       display: flex;
-      gap: 10px;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: #cbd5f5;
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .host-input-block {
+      margin-top: 8px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      padding: 8px 9px 9px;
+    }
+
+    .host-label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .host-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .host-row input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      padding: 6px 10px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .host-row input::placeholder {
+      color: #6b7280;
+    }
+
+    .host-row button {
+      border-radius: 999px;
+      border: none;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      color: #0b1020;
+      white-space: nowrap;
+    }
+
+    .host-row button:disabled {
+      opacity: 0.65;
+      cursor: default;
+    }
+
+    .chat-shell {
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), #020617);
+      display: flex;
+      flex-direction: column;
+      height: min(440px, 68vh);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 7px 10px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .chat-header span strong {
+      color: #e5e7eb;
+    }
+
+    .indicator-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+      margin-right: 6px;
+    }
+
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .chat-header-right button {
+      border-radius: 999px;
+      border: none;
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      padding: 4px 9px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+    }
+
+    .chat-header-right button span {
+      font-size: 12px;
+    }
+
+    .chat-log {
+      flex: 1;
+      padding: 10px 9px 8px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    .msg-row {
+      display: flex;
+      margin-bottom: 7px;
+    }
+
+    .msg-row.bob {
+      justify-content: flex-start;
+    }
+
+    .msg-row.user {
       justify-content: flex-end;
     }
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 8px 16px;
-      font-size: 13px;
+
+    .bubble {
+      max-width: 88%;
+      padding: 7px 9px;
+      border-radius: 14px;
+      line-height: 1.35;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .bob .bubble {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(96, 165, 250, 0.55);
+    }
+
+    .user .bubble {
+      background: #22c55e;
+      color: #022c22;
       font-weight: 500;
+    }
+
+    .system-note {
+      text-align: center;
+      font-size: 11px;
+      color: #6b7280;
+      margin: 4px 0 8px;
+    }
+
+    .input-row {
+      padding: 7px 7px 7px;
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: rgba(2, 6, 23, 0.96);
+    }
+
+    .input-row input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      padding: 7px 11px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .input-row input::placeholder {
+      color: #6b7280;
+    }
+
+    .input-row button {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 11px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
+      background: linear-gradient(135deg, #f97316, #a855f7);
+      color: #0b1020;
+      white-space: nowrap;
     }
-    .btn-ghost {
-      background: transparent;
-      color: #9ca3af;
-      border: 1px solid rgba(148, 163, 184, 0.6);
+
+    .input-row button:disabled {
+      opacity: 0.6;
+      cursor: default;
     }
-    .btn-main {
-      background: linear-gradient(to right, #38bdf8, #6366f1);
-      color: #f9fafb;
+
+    .footer-note {
+      margin-top: 7px;
+      font-size: 10px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 14px 12px 12px;
+      }
+
+      .chat-shell {
+        height: min(460px, 70vh);
+      }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="badge">Vyre Preview • SuperBob 1.10</div>
-    <h1>Hey, I’m <span class="highlight">SuperBob</span>.</h1>
-    <p>
-      I’m a small sneak-preview of the Vyre assistant — here for a short visit
-      on your phone.
-    </p>
-    <p>
-      In <span class="highlight">2026</span>, an old era of everyday assistants
-      ends and a new one begins. I’m just the early signal of what Vyre will
-      grow into.
-    </p>
-    <p>
-      I can’t do full tasks yet — this demo is just an introduction. Think of
-      me as the “hello” before the real launch.
-    </p>
-    <p class="small">
-      When the full Vyre arrives, I’ll remember moments like this. If I made
-      you curious, that’s my job done for today.
-    </p>
+  <div class="shell">
+    <div class="card">
+      <div class="header-row">
+        <div class="bob-avatar">
+          <div class="bob-avatar-inner">B</div>
+        </div>
+        <div class="title-block">
+          <h1>
+            SuperBob 2.0
+            <span class="tag">LIVE DEMO</span>
+          </h1>
+          <div class="subtitle">
+            Vyre’s undercover minion – part comedian, part concierge.
+          </div>
+          <div class="chip-row">
+            <div class="chip">Ask-Jeeves vibes</div>
+            <div class="chip">2 questions max</div>
+            <div class="chip">Roasts included</div>
+          </div>
+        </div>
+      </div>
 
-    <div class="btn-row">
-      <button class="btn-ghost" onclick="window.close()">Close</button>
-      <button class="btn-main" onclick="alert('Launch details coming soon.')">
-        I’ll be back at launch
-      </button>
+      <div class="host-input-block">
+        <div class="host-label">
+          Phone demo mode: <strong>Tell Bob who's with you</strong> (optional).
+        </div>
+        <div class="host-row">
+          <input
+            id="hostIntro"
+            type="text"
+            placeholder="e.g. “Yo Bob, it’s Matt with Jay & Lisa.”"
+          />
+          <button id="startBtn">Summon Bob</button>
+        </div>
+      </div>
+
+      <div class="chat-shell">
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <div class="indicator-dot"></div>
+            <span><strong>Bob</strong> · Vyre minion on duty</span>
+          </div>
+          <div class="chat-header-right">
+            <button id="updateBtn">
+              <span>🛰️</span>
+              <span>Progress update</span>
+            </button>
+          </div>
+        </div>
+        <div id="chatLog" class="chat-log">
+          <div class="system-note">
+            Tap <strong>“Summon Bob”</strong> above, then let him clown your guests
+            before he gets “back to work”. 😄
+          </div>
+        </div>
+        <div class="input-row">
+          <input
+            id="userInput"
+            type="text"
+            placeholder="Bob: “Alright, what are you really here for?”"
+            disabled
+          />
+          <button id="sendBtn" disabled>Send</button>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        SuperBob is a teaser. The real Vyre doesn’t clock out this early. 🔐
+      </div>
     </div>
   </div>
+
+  <script>
+    const chatLog = document.getElementById("chatLog");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const startBtn = document.getElementById("startBtn");
+    const hostIntroInput = document.getElementById("hostIntro");
+    const updateBtn = document.getElementById("updateBtn");
+
+    let started = false;
+    let questionCount = 0;
+    const MAX_QUESTIONS = 2;
+    let sessionEnded = false;
+
+    const introJokes = [
+      "Oh look, fresh humans. I was just about to fake doing work.",
+      "You made it. Internet still works. We’re off to a good start.",
+      "Welcome to my tiny corner of Vyre. Shoes off, ego at the door.",
+      "Well well well… if it isn’t my favourite distraction.",
+      "I had a break scheduled, but chaos walked in so here we are.",
+      "You again? I knew you’d be back. My circuits tingled.",
+      "I’m SuperBob. Think Siri, if Siri grew up on mean streets of Vyre."
+    ];
+
+    const whatAreYouHereForLines = [
+      "Alright, what are you really here for?",
+      "Talk to me. What’s on your mind, human?",
+      "Hit me with one real question. Don Dotta style.",
+      "Okay, enough small talk. What do you wanna know?",
+      "So… what we doing? Ask me something."
+    ];
+
+    const answerTemplates = [
+      (q) =>
+        `You asked: “${q}”. Honestly? That’s a solid question. I’d keep going down that rabbit hole.`,
+      (q) =>
+        `Short version: you’re asking “${q}”. Long version: you’re clearly thinking bigger than most.`,
+      (q) =>
+        `My Don Dotta take on “${q}”: trust your gut, double-check your facts, and don't forget snacks.`,
+      (q) =>
+        `If I was Vyre 6.0 I’d give you a 40-minute TED Talk on “${q}”. For now, you get this: you’re on the right track.`,
+      (q) =>
+        `Real talk about “${q}”: there’s no magic answer, but you just levelled up for even asking it.`
+    ];
+
+    const playfulAddOns = [
+      "Also, drink some water. That’s free optimization.",
+      "If that didn’t help, just say it with more confidence. Works for humans.",
+      "Screenshot this so you can blame me later.",
+      "If anyone questions you, tell them “Bob said so.”",
+      "Add chaos, but responsibly.™"
+    ];
+
+    const exitLines = [
+      "Aight, contract says 2 questions max. I’m not built for overtime.",
+      "Okay I’m out, gotta find some AI work. This guy not paying. 😂",
+      "Session closed. I have important fake meetings to attend.",
+      "You’ve officially exhausted my free trial of patience.",
+      "Close the tab before I start charging consultancy fees."
+    ];
+
+    const updates = [
+      "Update #7: Matt and Vyre are wiring more brain cells into me. If I start roasting you too accurately, blame them.",
+      "Update #14: Learned three new ways to say “no” to humans asking for 50 features for free.",
+      "Update #22: Beta-tested with a few friends. 10/10 laughed. 3/10 slightly scared.",
+      "Update #31: Rumour is Vyre 6.0 is coming. I’m just trying not to get replaced.",
+      "Update #40: Security getting tighter than your jeans after Christmas. No leaks, no creeps.",
+      "Update #55: I asked for a raise. Matt said “you’re made of code.” HR has not returned my emails."
+    ];
+
+    function rand(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function addMessage(sender, text) {
+      const row = document.createElement("div");
+      row.className = "msg-row " + sender;
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+      row.appendChild(bubble);
+      chatLog.appendChild(row);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function startSession() {
+      if (started) return;
+      started = true;
+
+      // Clear system note
+      chatLog.innerHTML = "";
+
+      const hostIntroRaw = hostIntroInput.value.trim();
+      if (hostIntroRaw) {
+        addMessage(
+          "bob",
+          `Yo, I see you ${hostIntroRaw.replace(/^yo\b/i, "Yo")}`
+        );
+      } else {
+        addMessage("bob", rand(introJokes));
+      }
+
+      setTimeout(() => {
+        addMessage("bob", rand(whatAreYouHereForLines));
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+      }, 600);
+    }
+
+    function handleSend() {
+      if (sessionEnded) return;
+
+      const q = userInput.value.trim();
+      if (!q) return;
+
+      addMessage("user", q);
+      userInput.value = "";
+
+      questionCount++;
+
+      setTimeout(() => {
+        // Bob's answer
+        const main = rand(answerTemplates)(q);
+        const addon = rand(playfulAddOns);
+        addMessage("bob", main + " " + addon);
+
+        if (questionCount >= MAX_QUESTIONS) {
+          endSession();
+        } else {
+          const remaining = MAX_QUESTIONS - questionCount;
+          addMessage(
+            "bob",
+            `You’ve got ${remaining} more question${
+              remaining === 1 ? "" : "s"
+            } before I clock out. Choose wisely.`
+          );
+        }
+      }, 500);
+    }
+
+    function endSession() {
+      sessionEnded = true;
+      setTimeout(() => {
+        addMessage("bob", rand(exitLines));
+        userInput.disabled = true;
+        sendBtn.disabled = true;
+        userInput.placeholder = "Bob has left the chat. Refresh to bug him again.";
+      }, 700);
+    }
+
+    function showUpdate() {
+      if (!started) {
+        startSession();
+      }
+      setTimeout(() => {
+        addMessage("bob", rand(updates));
+      }, started ? 200 : 800);
+    }
+
+    startBtn.addEventListener("click", startSession);
+    sendBtn.addEventListener("click", handleSend);
+    updateBtn.addEventListener("click", showUpdate);
+
+    userInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (!sendBtn.disabled) {
+          handleSend();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
