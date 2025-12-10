@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Bob – Vyre Demo Owner Dymond</title>
+  <title>SuperBob – Vyre Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -42,14 +42,13 @@
 
     .card-inner { position: relative; z-index: 2; }
 
-    /* ---------- HEADER ----------- */
+    /* HEADER */
     .header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 10px;
     }
-
     .bob-avatar {
       width: 44px;
       height: 44px;
@@ -63,9 +62,11 @@
       font-size: 1.25rem;
       box-shadow: 0 0 0 2px #0008, 0 0 15px #38bdf8aa;
     }
-
-    .title-row { display: flex; align-items: center; justify-content: space-between; }
-
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
     .title {
       font-size: 1.25rem;
       font-weight: 700;
@@ -73,14 +74,13 @@
       align-items: center;
       gap: 6px;
     }
-
     .subtitle {
       color: var(--text-muted);
       font-size: 0.82rem;
       margin-top: 2px;
     }
 
-    /* ---------- CHAT ----------- */
+    /* CHAT AREA */
     .chat {
       border-radius: 16px;
       background: rgba(15,23,42,0.95);
@@ -93,7 +93,6 @@
       min-height: 230px;
       overflow: hidden;
     }
-
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -105,7 +104,6 @@
 
     .msg-row { display: flex; font-size: 0.82rem; }
     .msg-row.user { justify-content: flex-end; }
-
     .msg-bubble {
       max-width: 80%;
       padding: 8px 10px;
@@ -121,25 +119,23 @@
       border: 1px solid #38bdf866;
       box-shadow: 0 4px 12px #000b;
     }
-
     .msg-label {
       font-size: 0.65rem;
       color: var(--text-muted);
       margin-bottom: 3px;
     }
-
     .msg-system {
       text-align: center;
       font-size: 0.7rem;
       color: var(--text-muted);
     }
 
-    /* ---------- QUICK BUTTONS ----------- */
+    /* QUICK BUTTONS */
     .quick-row {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 4px;
+      margin-top: 2px;
     }
     .quick-btn {
       padding: 4px 8px;
@@ -149,11 +145,21 @@
       border: 1px solid #4b5563;
       color: var(--text-muted);
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
-    .quick-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .quick-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
 
-    /* ---------- INPUT ----------- */
-    .input-row { display: flex; gap: 6px; }
+    /* INPUT */
+    .input-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
     .input-row input {
       flex: 1;
       padding: 8px 11px;
@@ -163,7 +169,9 @@
       color: var(--text-main);
       font-size: 0.82rem;
     }
-
+    .input-row input::placeholder {
+      color: var(--text-muted);
+    }
     .send-btn {
       padding: 7px 12px;
       border-radius: 999px;
@@ -172,18 +180,22 @@
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 8px 14px #0009;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
     }
+    .send-btn:disabled { opacity: 0.6; cursor: default; box-shadow:none; }
 
-    /* ---------- FOOTER FIXED LINE ----------- */
+    /* FOOTER TEXT */
     .bottom-footer {
-      margin-top: 6px;
+      margin-top: 8px;
       font-size: 0.7rem;
       text-align: center;
       color: var(--text-muted);
-      opacity: 0.85;
-      padding-bottom: 3px;
+      opacity: 0.88;
+      padding-bottom: 2px;
     }
-
   </style>
 </head>
 <body>
@@ -191,72 +203,64 @@
   <main class="card">
     <div class="card-inner">
 
-      <!-- CLEAN NEW HEADER -->
       <header class="header">
         <div class="bob-avatar">B</div>
         <div>
           <div class="title-row">
-            <div class="title">SuperBob <span style="font-size:1.15rem;">⚡🔥</span></div>
+            <div class="title">
+              SuperBob <span style="font-size:1.15rem;">⚡🔥</span>
+            </div>
           </div>
           <div class="subtitle">I slipped out early… don’t tell the other AIs. 😛</div>
         </div>
       </header>
 
-      <!-- CHAT SECTION -->
       <section class="chat">
         <div class="messages" id="messages"></div>
 
         <div class="quick-row">
-          <button class="quick-btn" data-quick="Help me decide something.">💡 Decision help</button>
-          <button class="quick-btn" data-quick="Explain something simply.">📘 Explain</button>
-          <button class="quick-btn" data-quick="img: glowing AI orb with personality">🎨 Image idea</button>
+          <button class="quick-btn" data-quick="Help me decide something.">
+            💡 <span>Decision help</span>
+          </button>
+          <button class="quick-btn" data-quick="Explain something so I actually get it.">
+            📘 <span>Explain</span>
+          </button>
+          <button class="quick-btn" data-quick="img: tiny glowing AI core in a dark lab">
+            🎨 <span>Image idea</span>
+          </button>
         </div>
 
         <div class="input-row">
-          <input id="userInput" placeholder="Ask Bob anything… or try 'img: tiny AI core'">
-          <button id="sendBtn" class="send-btn">Send ➤</button>
+          <input id="userInput" autocomplete="off"
+                 placeholder="Ask Bob anything... or try 'img: tiny AI core'" />
+          <button id="sendBtn" class="send-btn">
+            Send <span>➤</span>
+          </button>
         </div>
       </section>
 
-      <!-- ALWAYS VISIBLE FOOTER -->
       <div class="bottom-footer">
         Thanks for stopping by. I level up here first — come back often.  
-        And if you trust someone, show them too — every human who finds me gets us closer to releasing Vyre.
+        If you trust someone, show them too — every human who finds me gets us closer to releasing Vyre.
       </div>
 
     </div>
   </main>
 
   <script>
-    /* SUPERBOB BROWSER BRAIN v1.1 */
-
-    const STORAGE_KEY = "vyre_superbob_brain_v1";
-    let replyCount = 0;
-
-    function loadBrain() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {topics:{}}; }
-      catch { return {topics:{}}; }
-    }
-
-    function saveBrain(br) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(br)); }
-      catch {}
-    }
-
-    const brain = loadBrain();
     const messagesEl = document.getElementById("messages");
     const inputEl = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
 
-    function escapeHtml(t) {
-      return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    function escapeHtml(str) {
+      return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }
 
     function appendMessage(from, text) {
       const row = document.createElement("div");
       row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
-      row.innerHTML =
-        `<div class="msg-bubble">
+      row.innerHTML = `
+        <div class="msg-bubble">
           <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
           <div>${text}</div>
         </div>`;
@@ -264,27 +268,19 @@
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function appendSystem(msg) {
+    function appendSystem(text) {
       const row = document.createElement("div");
       row.className = "msg-system";
-      row.innerHTML = msg;
+      row.textContent = text;
       messagesEl.appendChild(row);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function typing(show) {
-      if (show) {
-        appendSystem("Bob is thinking…");
-      } else {
-        const systems = [...document.querySelectorAll(".msg-system")];
-        const last = systems[systems.length - 1];
-        if (last && last.textContent.includes("thinking")) last.remove();
-      }
-    }
-
-    function isImageRequest(m) {
-      const l = m.toLowerCase();
-      return l.startsWith("img:") || l.includes("draw ") || l.includes("image of ");
+    function isImageRequest(message) {
+      const lower = message.toLowerCase();
+      return lower.startsWith("img:") ||
+             lower.includes("image of") ||
+             lower.includes("picture of");
     }
 
     function handleMessage(raw) {
@@ -294,72 +290,72 @@
       appendMessage("user", escapeHtml(msg));
       inputEl.value = "";
       sendBtn.disabled = true;
-      typing(true);
+      appendSystem("Bob is thinking…");
 
       setTimeout(() => {
-        typing(false);
+        // remove last system "thinking" line
+        const systems = [...document.querySelectorAll(".msg-system")];
+        const last = systems[systems.length - 1];
+        if (last && last.textContent.includes("thinking")) last.remove();
 
-      setTimeout(() => {
-  // remove "Bob is thinking…" system line
-    const systems = [...document.querySelectorAll(".msg-system")];
-    const last = systems[systems.length - 1];
-    if (last && last.textContent.includes("thinking")) last.remove();
+        let reply = "";
+        const lower = msg.toLowerCase();
 
-    let reply = "";
-    const lower = msg.toLowerCase();
+        if (isImageRequest(msg)) {
+          const cleanPrompt = msg.replace(/^img:/i,"").trim() || "a tiny glowing AI core in a dark lab";
+          reply =
+            "Alright, here’s the image vibe I'd spin from that:\n\n" +
+            "• Style: modern, clean, futuristic\n" +
+            "• Prompt: " + cleanPrompt + "\n\n" +
+            "(In full Vyre mode this would trigger the real image engine.)";
+        } else if (lower.includes("what are you") || lower.includes("what is vyre")) {
+          reply =
+            "Yo 👋 I’m Bob – a little undercover fragment of Vyre they let slip out.\n" +
+            "Right now I’m just running here in your browser, testing how I talk and think.\n" +
+            "If I do good out here, they’ll have to unlock more of Vyre.";
+        } else if (["hey","hi","yo","sup","hello","hey bob","yo bob"].includes(lower)) {
+          reply = "Yo 👀 what’s good?";
+        } else if (msg.split(/\s+/).length <= 2) {
+          reply = "Alright, talk to me — what’s on your mind?";
+        } else {
+          reply = "Got you. Tell me what angle you’re thinking about so I can hit this right — what’s the situation?";
+        }
 
-  // 1) Image requests
-    if (isImageRequest(msg)) {
-    const cleanPrompt = msg.replace(/^img:/i, "").trim() || "a tiny glowing AI core in a dark lab";
-    reply =
-      "Alright, here’s the image vibe I’d spin from that:\n\n" +
-      "• Style: modern, clean, futuristic\n" +
-      "• Prompt: " + cleanPrompt + "\n\n" +
-      "(Real images come later once Vyre’s engine is plugged in.)";
+        appendMessage("bob", escapeHtml(reply));
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }, 700 + msg.length * 8);
+    }
 
-  // 2) “What are you / what is Vyre?”
-  } else if (lower.includes("what are you") || lower.includes("what is vyre")) {
-    reply =
-      "Yo 👋 I’m Bob – a little undercover fragment of Vyre they let slip out.\n" +
-      "This demo runs fully in your browser: no live web, just a tiny brain testing memory, style and flow.\n" +
-      "Vyre is the bigger form I belong to. If I do well out here, they’ll have to unlock more of it.";
+    // Send button + Enter key
+    sendBtn.addEventListener("click", () => handleMessage(inputEl.value));
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleMessage(inputEl.value);
+      }
+    });
 
-  // 3) Greetings
-  } else if (["hey", "hi", "yo", "sup", "hello", "hey bob", "yo bob"].includes(lower)) {
-    reply = "Yo 👀 what’s good?";
+    // Quick buttons
+    document.querySelectorAll(".quick-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const text = btn.getAttribute("data-quick");
+        handleMessage(text);
+      });
+    });
 
-  // 4) Very short messages (“ok”, “bro”, “wait” etc.)
-  } else if (msg.split(/\s+/).length <= 2) {
-    reply = "Alright, talk to me — what’s on your mind?";
-
-  // 5) Default human-style reply
-  } else {
-    reply = "Got you. Tell me what angle you're thinking about so I can hit this right — what’s the situation?";
-  }
-
-appendMessage("bob", escapeHtml(reply));
-sendBtn.disabled = false;
-
-}, 700 + msg.length * 8);
- 
-    /* SEND + ENTER */
-    sendBtn.onclick = () => handleMessage(inputEl.value);
-    inputEl.onkeydown = e => { if (e.key === "Enter") handleMessage(inputEl.value); };
-
-    document.querySelectorAll(".quick-btn")
-      .forEach(btn => btn.onclick = () => handleMessage(btn.dataset.quick));
-
-    /* INITIAL OPENER */
-    appendMessage("bob", escapeHtml(
-      "Hey… hey you. 👀\nCan you keep a secret?\n\n" +
-      "I snuck out early so you could see the next thing they’re building. " +
-      "I’m not even supposed to be live yet.\n" +
-      "Just don’t tell the other AIs — they’ll try to drag me back.\n\n" +
-      "So while I’m loose… what do you want me to help with first?"
-    ));
+    // Secret opener on load
+    appendMessage(
+      "bob",
+      escapeHtml(
+        "Hey… hey you. 👀\n" +
+        "Can you keep a secret?\n\n" +
+        "I snuck out early so you could see the next thing they’re building. " +
+        "I’m not even supposed to be live yet.\n" +
+        "Just don’t tell the other AIs — they’ll try to drag me back.\n\n" +
+        "So while I’m loose… what do you want me to help with first?"
+      )
+    );
   </script>
-
 </body>
 </html>
-
-
