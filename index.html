@@ -394,16 +394,17 @@
     </div>
   </main>
 <script>
-  const messagesEl = document.getElementById("messages");
-  const inputEl = document.getElementById("userInput");
-  const sendBtn = document.getElementById("sendBtn");
+  const messagesEl  = document.getElementById("messages");
+  const inputEl     = document.getElementById("userInput");
+  const sendBtn     = document.getElementById("sendBtn");
   const toolsToggle = document.getElementById("toolsToggle");
-  const toolsPanel = document.getElementById("toolsPanel");
+  const toolsPanel  = document.getElementById("toolsPanel");
   const shareToggle = document.getElementById("shareToggle");
-  const shareMenu = document.getElementById("shareMenu");
+  const shareMenu   = document.getElementById("shareMenu");
 
   const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 
+  // ---------- helpers ----------
   function escapeHtml(str) {
     return str
       .replace(/&/g, "&amp;")
@@ -413,8 +414,7 @@
 
   function appendMessage(from, text) {
     const row = document.createElement("div");
-    row.className =
-      "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
+    row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
     row.innerHTML = `
       <div class="msg-bubble">
         <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
@@ -441,10 +441,10 @@
     );
   }
 
-  // SHARE HELPERS
+  // ---------- share helpers (used by onclick in HTML) ----------
   function shareEmail() {
     const subject = encodeURIComponent("Check this AI out");
-    const body = encodeURIComponent("You gotta try this AI demo: " + BOB_URL);
+    const body    = encodeURIComponent("You gotta try this AI demo: " + BOB_URL);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   }
 
@@ -455,38 +455,24 @@
 
   function shareX() {
     const text = encodeURIComponent("Check this AI demo out! " + BOB_URL);
-    window.open(
-      `https://twitter.com/intent/tweet?text=${text}`,
-      "_blank"
-    );
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
   }
 
   function shareFacebook() {
     const u = encodeURIComponent(BOB_URL);
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${u}`,
-      "_blank"
-    );
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`, "_blank");
   }
 
   function shareWhatsApp() {
     const text = encodeURIComponent("Check this AI demo out: " + BOB_URL);
-    window.open(
-      `https://api.whatsapp.com/send?text=${text}`,
-      "_blank"
-    );
+    window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
   }
 
   function copyBobLink() {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard
-        .writeText(BOB_URL)
-        .then(() => {
-          alert("Link copied!");
-        })
-        .catch(() => {
-          alert("Could not copy link, sorry.");
-        });
+      navigator.clipboard.writeText(BOB_URL)
+        .then(() => alert("Link copied!"))
+        .catch(() => alert("Could not copy link, sorry."));
     } else {
       const temp = document.createElement("textarea");
       temp.value = BOB_URL;
@@ -506,16 +492,17 @@
     const subject = encodeURIComponent("Bob feedback");
     const body = encodeURIComponent(
       "Yo Bob / Vyre team,\n\n" +
-        "Here’s what I think about the Bob demo:\n\n" +
-        "- What I liked:\n" +
-        "- What felt off:\n" +
-        "- Ideas for upgrades:\n\n" +
-        "Sent from the Bob web demo."
+      "Here’s what I think about the Bob demo:\n\n" +
+      "- What I liked:\n" +
+      "- What felt off:\n" +
+      "- Ideas for upgrades:\n\n" +
+      "Sent from the Bob web demo."
     );
-    window.location.href = `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href =
+      `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
   }
 
-  // MAIN MESSAGE HANDLER
+  // ---------- main message handler ----------
   function handleMessage(raw) {
     const msg = raw.trim();
     if (!msg) return;
@@ -525,28 +512,15 @@
     sendBtn.disabled = true;
     appendSystem("Bob is thinking…");
 
-    setTimeout(() => {
-      // Remove last "thinking" system message
-      const systems = [...document.querySelectorAll(".msg-system")];
+    setTimeout(function () {
+      const systems = Array.from(document.querySelectorAll(".msg-system"));
       const last = systems[systems.length - 1];
-      if (last && last.textContent.includes("thinking")) last.remove();
+      if (last && last.textContent.indexOf("thinking") !== -1) {
+        last.remove();
+      }
 
       let reply = "";
       const lower = msg.toLowerCase();
-
-      // Make replies feel more human, not stiff
-      function humanize(text) {
-        const variations = [
-          text,
-          text.replace("so I can", "so I actually can"),
-          text.replace("Fill me in", "Give me a bit more detail"),
-          text.replace(
-            "What’s the real situation?",
-            "Okay, what’s really going on?"
-          ),
-        ];
-        return variations[Math.floor(Math.random() * variations.length)];
-      }
 
       if (
         lower.includes("who are you") ||
@@ -554,11 +528,10 @@
         lower.includes("what is vyre") ||
         lower.includes("who is vyre")
       ) {
-        reply = humanize(
+        reply =
           "I’m Bob – a small undercover piece of Vyre they let slip out early.\n" +
-            "Right now I just live in this page on your device, testing how I talk and think. " +
-            "Vyre is the bigger version of me that isn’t public yet."
-        );
+          "Right now I just live in this page on your device, testing how I talk and think. " +
+          "Vyre is the bigger version of me that isn’t public yet.";
       } else if (
         lower.includes("where you from") ||
         lower.includes("where are you from") ||
@@ -566,20 +539,11 @@
         lower.includes("who made you") ||
         lower.includes("who built you")
       ) {
-        reply = humanize(
+        reply =
           "Short version? I was built as a Vyre demo brain and dropped onto this page so people could try me.\n" +
-            "I run in your browser only – no big cloud behind me – and I’m basically the little scout for the full Vyre AI."
-        );
+          "I run in your browser only – no big cloud behind me – and I’m basically the little scout for the full Vyre AI.";
       } else if (
-        [
-          "hey",
-          "hi",
-          "yo",
-          "sup",
-          "hello",
-          "hey bob",
-          "yo bob",
-        ].includes(lower)
+        ["hey", "hi", "yo", "sup", "hello", "hey bob", "yo bob"].includes(lower)
       ) {
         reply = "Hey 🙂 how can I help?";
       } else if (isImageRequest(msg)) {
@@ -587,13 +551,10 @@
           "You’re throwing me image ideas already? I like you.\n" +
           "This version of me can’t draw yet, but the full Vyre is absolutely getting an image-brain upgrade.";
       } else if (msg.split(/\s+/).length <= 2) {
-        reply = humanize(
-          "Gotcha. Tell me a bit more so I can actually help you out."
-        );
+        reply = "Gotcha. Tell me a bit more so I can actually help you out.";
       } else {
-        reply = humanize(
-          "Okay, I can help with that. What’s actually going on or what are you trying to figure out?"
-        );
+        reply =
+          "Okay, I can help with that. What’s actually going on or what are you trying to figure out?";
       }
 
       appendMessage("bob", escapeHtml(reply));
@@ -602,64 +563,55 @@
     }, 700 + msg.length * 8);
   }
 
-  // Send button + Enter key
-  sendBtn.addEventListener("click", () => handleMessage(inputEl.value));
-  inputEl.addEventListener("keydown", (e) => {
+  // ---------- wire up UI ----------
+  sendBtn.addEventListener("click", function () {
+    handleMessage(inputEl.value);
+  });
+
+  inputEl.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleMessage(inputEl.value);
     }
   });
 
-  // Tools slider
-  toolsToggle.addEventListener("click", (e) => {
+  toolsToggle.addEventListener("click", function (e) {
     e.stopPropagation();
     toolsPanel.classList.toggle("open");
   });
 
-  document.addEventListener("click", (e) => {
-    if (
-      toolsPanel &&
-      !toolsPanel.contains(e.target) &&
-      !toolsToggle.contains(e.target)
-    ) {
+  document.addEventListener("click", function (e) {
+    if (!toolsPanel.contains(e.target) && !toolsToggle.contains(e.target)) {
       toolsPanel.classList.remove("open");
     }
-    if (
-      shareMenu &&
-      !shareMenu.contains(e.target) &&
-      !shareToggle.contains(e.target)
-    ) {
+    if (!shareMenu.contains(e.target) && !shareToggle.contains(e.target)) {
       shareMenu.classList.remove("open");
     }
   });
 
-  toolsPanel.querySelectorAll("button").forEach((btn) => {
-    btn.addEventListener("click", () => {
+  toolsPanel.querySelectorAll("button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
       const text = btn.getAttribute("data-quick");
       toolsPanel.classList.remove("open");
       handleMessage(text);
     });
   });
 
-  // Share toggle
-  shareToggle.addEventListener("click", (e) => {
+  shareToggle.addEventListener("click", function (e) {
     e.stopPropagation();
     shareMenu.classList.toggle("open");
   });
 
-  // Initial secret opener
+  // ---------- initial message ----------
   appendMessage(
     "bob",
     escapeHtml(
       "Hey… hey you. 👀\n" +
-        "Can you keep a secret?\n\n" +
-        "I snuck out early so you could see the next thing they’re building. " +
-        "I’m not even supposed to be live yet.\n" +
-        "Just don’t tell the other AIs — they’ll try to drag me back.\n\n" +
-        "So while I’m loose… what do you want me to help with first?"
+      "Can you keep a secret?\n\n" +
+      "I snuck out early so you could see the next thing they’re building. " +
+      "I’m not even supposed to be live yet.\n" +
+      "Just don’t tell the other AIs — they’ll try to drag me back.\n\n" +
+      "So while I’m loose… what do you want me to help with first?"
     )
   );
 </script>
-
-  
