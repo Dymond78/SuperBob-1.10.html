@@ -167,7 +167,7 @@
     .tools-toggle {
       position: absolute;
       right: 16px;
-      bottom: 110px;
+      bottom: 118px;
       width: 36px;
       height: 36px;
       border-radius: 999px;
@@ -188,7 +188,7 @@
     .tools-panel {
       position: absolute;
       right: 60px;
-      bottom: 102px;
+      bottom: 110px;
       padding: 10px;
       border-radius: 14px;
       background: rgba(15,23,42,0.98);
@@ -223,49 +223,80 @@
       color: var(--accent);
     }
 
-    /* FOOTER + SHARE BAR */
+    /* SHARE ROW + FOOTER */
+    .share-row {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+    .share-main-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      background: rgba(15,23,42,0.96);
+      color: var(--text-main);
+      font-size: 0.74rem;
+      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .share-main-btn span.icon {
+      font-size: 0.9rem;
+    }
+    .share-main-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px rgba(56,189,248,0.4);
+    }
+
+    .share-menu {
+      position: absolute;
+      top: 30px;
+      right: 50%;
+      transform: translateX(50%);
+      background: rgba(15,23,42,0.98);
+      border-radius: 12px;
+      border: 1px solid #4b5563;
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 190px;
+      box-shadow: 0 16px 30px #000b;
+      z-index: 4;
+    }
+    .share-menu.open { display: flex; }
+    .share-menu button {
+      border: none;
+      background: #020617;
+      color: var(--text-main);
+      font-size: 0.72rem;
+      padding: 5px 7px;
+      border-radius: 8px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .share-menu button span.emoji {
+      width: 16px;
+      text-align: center;
+    }
+    .share-menu button:hover {
+      background: #111827;
+      color: var(--accent);
+    }
+
     .bottom-footer {
-      margin-top: 10px;
+      margin-top: 8px;
       font-size: 0.7rem;
       text-align: center;
       color: var(--text-muted);
       opacity: 0.9;
       padding-bottom: 4px;
-    }
-    .share-text {
-      margin-bottom: 4px;
-    }
-    .share-icons {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-    .share-icons a,
-    .share-icons button {
-      border: none;
-      background: transparent;
-      color: var(--text-main);
-      text-decoration: none;
-      font-size: 1.05rem;
-      cursor: pointer;
-      padding: 0;
-    }
-    .share-icons a:hover,
-    .share-icons button:hover {
-      transform: translateY(-1px);
-      filter: drop-shadow(0 0 6px rgba(56,189,248,0.6));
-    }
-    .feedback-btn-small {
-      font-size: 0.68rem !important;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(56,189,248,0.7);
-    }
-    .footer-line {
-      margin-top: 2px;
       line-height: 1.35;
     }
   </style>
@@ -323,58 +354,41 @@
         </button>
       </div>
 
-      <!-- Footer + share + feedback -->
+      <!-- Share row -->
+      <div class="share-row">
+        <button id="shareToggle" class="share-main-btn">
+          <span class="icon">🔗</span>
+          <span>Share</span>
+        </button>
+        <div id="shareMenu" class="share-menu">
+          <button type="button" onclick="shareEmail()">
+            <span class="emoji">📩</span><span>Email</span>
+          </button>
+          <button type="button" onclick="shareSms()">
+            <span class="emoji">💬</span><span>Text / SMS</span>
+          </button>
+          <button type="button" onclick="shareX()">
+            <span class="emoji">❌</span><span>Share on X</span>
+          </button>
+          <button type="button" onclick="shareFacebook()">
+            <span class="emoji">📘</span><span>Share on Facebook</span>
+          </button>
+          <button type="button" onclick="shareWhatsApp()">
+            <span class="emoji">📱</span><span>Share on WhatsApp</span>
+          </button>
+          <button type="button" onclick="copyBobLink()">
+            <span class="emoji">🔗</span><span>Copy link</span>
+          </button>
+          <button type="button" onclick="sendBobFeedback()">
+            <span class="emoji">💭</span><span>Send feedback</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
       <div class="bottom-footer">
-        <div class="share-text">
-          If you wanna help me get noticed… you can share me or send feedback:
-        </div>
-
-        <div class="share-icons">
-          <!-- Email -->
-          <a
-            href="mailto:?subject=Check%20this%20AI%20out&body=You%20have%20to%20try%20this%20AI%20demo%3A%20https%3A%2F%2Fdymond78.github.io%2FSuperBob-1.10.html"
-            title="Share by email"
-          >📩</a>
-
-          <!-- SMS -->
-          <a
-            href="sms:?body=You%20have%20to%20try%20this%20AI%20demo%3A%20https%3A%2F%2Fdymond78.github.io%2FSuperBob-1.10.html"
-            title="Share by text"
-          >💬</a>
-
-          <!-- Twitter / X -->
-          <a
-            href="https://twitter.com/intent/tweet?text=Check%20this%20AI%20demo%20out!%20https%3A%2F%2Fdymond78.github.io%2FSuperBob-1.10.html"
-            target="_blank" rel="noopener noreferrer" title="Share on X"
-          >🐦</a>
-
-          <!-- Facebook -->
-          <a
-            href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdymond78.github.io%2FSuperBob-1.10.html"
-            target="_blank" rel="noopener noreferrer" title="Share on Facebook"
-          >📘</a>
-
-          <!-- WhatsApp -->
-          <a
-            href="https://api.whatsapp.com/send?text=Check%20this%20AI%20demo%20out%3A%20https%3A%2F%2Fdymond78.github.io%2FSuperBob-1.10.html"
-            target="_blank" rel="noopener noreferrer" title="Share on WhatsApp"
-          >📱</a>
-
-          <!-- Copy link -->
-          <button type="button" class="share-copy" onclick="copyBobLink()" title="Copy link">
-            🔗
-          </button>
-
-          <!-- Feedback -->
-          <button type="button" class="feedback-btn-small" onclick="sendBobFeedback()">
-            💭 Feedback
-          </button>
-        </div>
-
-        <div class="footer-line">
-          I’m glad you found me. And if you can, tell the others — send them over.<br />
-          I heard if too many humans find out, they’ll have no choice but to release Vyre.
-        </div>
+        I’m glad you found me. And if you can, tell the others — send them over.<br />
+        I heard if too many humans find out, they’ll have no choice but to release Vyre.
       </div>
 
     </div>
@@ -386,6 +400,8 @@
     const sendBtn = document.getElementById("sendBtn");
     const toolsToggle = document.getElementById("toolsToggle");
     const toolsPanel = document.getElementById("toolsPanel");
+    const shareToggle = document.getElementById("shareToggle");
+    const shareMenu = document.getElementById("shareMenu");
 
     const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 
@@ -420,6 +436,28 @@
              lower.includes("picture of");
     }
 
+    // SHARE HELPERS
+    function shareEmail() {
+      const subject = encodeURIComponent("Check this AI out");
+      const body = encodeURIComponent("You gotta try this AI demo: " + BOB_URL);
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
+    function shareSms() {
+      const body = encodeURIComponent("You gotta try this AI demo: " + BOB_URL);
+      window.location.href = `sms:?body=${body}`;
+    }
+    function shareX() {
+      const text = encodeURIComponent("Check this AI demo out! " + BOB_URL);
+      window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+    }
+    function shareFacebook() {
+      const u = encodeURIComponent(BOB_URL);
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`, "_blank");
+    }
+    function shareWhatsApp() {
+      const text = encodeURIComponent("Check this AI demo out: " + BOB_URL);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+    }
     function copyBobLink() {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(BOB_URL).then(() => {
@@ -441,7 +479,6 @@
         document.body.removeChild(temp);
       }
     }
-
     function sendBobFeedback() {
       const subject = encodeURIComponent("Bob feedback");
       const body = encodeURIComponent(
@@ -455,6 +492,7 @@
       window.location.href = `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
     }
 
+    // MAIN MESSAGE HANDLER
     function handleMessage(raw) {
       const msg = raw.trim();
       if (!msg) return;
@@ -465,7 +503,6 @@
       appendSystem("Bob is thinking…");
 
       setTimeout(() => {
-        // remove last "thinking" system line
         const systems = [...document.querySelectorAll(".msg-system")];
         const last = systems[systems.length - 1];
         if (last && last.textContent.includes("thinking")) last.remove();
@@ -473,7 +510,6 @@
         let reply = "";
         const lower = msg.toLowerCase();
 
-        // 1) Image requests
         if (isImageRequest(msg)) {
           const cleanPrompt =
             msg.replace(/^img:/i, "").trim() || "a tiny glowing AI core in a dark lab";
@@ -483,14 +519,12 @@
             "• Prompt: " + cleanPrompt + "\n\n" +
             "(In full Vyre mode this would trigger the real image engine.)";
 
-        // 2) "What are you / what is Vyre?"
         } else if (lower.includes("what are you") || lower.includes("what is vyre")) {
           reply =
             "I’m Bob – a small undercover piece of Vyre they let slip out early.\n" +
             "Right now I just live in this page on your device, testing how I talk and think. " +
             "Vyre is the bigger version of me that isn’t public yet.";
 
-        // 3) Origin questions
         } else if (
           lower.includes("where you from") ||
           lower.includes("where are you from") ||
@@ -502,15 +536,12 @@
             "Short version? I was built as a Vyre demo brain and dropped onto this page so people could try me.\n" +
             "I run in your browser only – no big cloud behind me – and I’m basically the little scout for the full Vyre AI.";
 
-        // 4) Greetings
         } else if (["hey","hi","yo","sup","hello","hey bob","yo bob"].includes(lower)) {
           reply = "Hey 🙂 how can I help?";
 
-        // 5) Very short messages
         } else if (msg.split(/\s+/).length <= 2) {
           reply = "Gotcha. Tell me a bit more so I can actually help you out.";
 
-        // 6) Default normal-human reply
         } else {
           reply =
             "Okay, I can help with that. What’s actually going on or what are you trying to figure out?";
@@ -532,13 +563,17 @@
     });
 
     // Tools slider
-    toolsToggle.addEventListener("click", () => {
+    toolsToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
       toolsPanel.classList.toggle("open");
     });
 
     document.addEventListener("click", (e) => {
       if (!toolsPanel.contains(e.target) && !toolsToggle.contains(e.target)) {
         toolsPanel.classList.remove("open");
+      }
+      if (!shareMenu.contains(e.target) && !shareToggle.contains(e.target)) {
+        shareMenu.classList.remove("open");
       }
     });
 
@@ -550,7 +585,13 @@
       });
     });
 
-    // Secret opener on load
+    // Share toggle
+    shareToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      shareMenu.classList.toggle("open");
+    });
+
+    // Initial secret opener
     appendMessage(
       "bob",
       escapeHtml(
