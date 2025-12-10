@@ -251,22 +251,26 @@
       box-shadow: 0 0 10px rgba(56,189,248,0.4);
     }
 
-    .share-menu {
-      position: absolute;
-      top: 30px;
-      right: 50%;
-      transform: translateX(50%);
-      background: rgba(15,23,42,0.98);
-      border-radius: 12px;
-      border: 1px solid #4b5563;
-      padding: 6px;
-      display: none;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 190px;
-      box-shadow: 0 16px 30px #000b;
-      z-index: 4;
-    }
+.share-menu {
+  position: absolute;
+  bottom: 40px;              /* opens ABOVE the button now */
+  right: 50%;
+  transform: translateX(50%);
+  background: rgba(15,23,42,0.98);
+  border-radius: 12px;
+  border: 1px solid #4b5563;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 190px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 16px 30px #000b;
+  z-index: 4;
+}
+
+    
     .share-menu.open { display: flex; }
     .share-menu button {
       border: none;
@@ -393,7 +397,7 @@
 
     </div>
   </main>
-<script>
+  <script>
   const messagesEl  = document.getElementById("messages");
   const inputEl     = document.getElementById("userInput");
   const sendBtn     = document.getElementById("sendBtn");
@@ -443,18 +447,18 @@
 
   // ---------- share helpers (used by onclick in HTML) ----------
   function shareEmail() {
-    const subject = encodeURIComponent("Check this AI out");
-    const body    = encodeURIComponent("You gotta try this AI demo: " + BOB_URL);
+    const subject = encodeURIComponent("Have a look at this AI demo");
+    const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   }
 
   function shareSms() {
-    const body = encodeURIComponent("You gotta try this AI demo: " + BOB_URL);
+    const body = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.location.href = `sms:?body=${body}`;
   }
 
   function shareX() {
-    const text = encodeURIComponent("Check this AI demo out! " + BOB_URL);
+    const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
   }
 
@@ -464,14 +468,14 @@
   }
 
   function shareWhatsApp() {
-    const text = encodeURIComponent("Check this AI demo out: " + BOB_URL);
+    const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
   }
 
   function copyBobLink() {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(BOB_URL)
-        .then(() => alert("Link copied!"))
+        .then(() => alert("Link copied"))
         .catch(() => alert("Could not copy link, sorry."));
     } else {
       const temp = document.createElement("textarea");
@@ -480,7 +484,7 @@
       temp.select();
       try {
         document.execCommand("copy");
-        alert("Link copied!");
+        alert("Link copied");
       } catch (e) {
         alert("Could not copy link, sorry.");
       }
@@ -491,8 +495,8 @@
   function sendBobFeedback() {
     const subject = encodeURIComponent("Bob feedback");
     const body = encodeURIComponent(
-      "Yo Bob / Vyre team,\n\n" +
-      "Here’s what I think about the Bob demo:\n\n" +
+      "Hi Bob / Vyre team,\n\n" +
+      "Here is my feedback about the Bob demo:\n\n" +
       "- What I liked:\n" +
       "- What felt off:\n" +
       "- Ideas for upgrades:\n\n" +
@@ -502,7 +506,7 @@
       `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
   }
 
-  // ---------- main message handler ----------
+  // ---------- main message handler (no slang, no robot tone) ----------
   function handleMessage(raw) {
     const msg = raw.trim();
     if (!msg) return;
@@ -512,16 +516,24 @@
     sendBtn.disabled = true;
     appendSystem("Bob is thinking…");
 
+    const lower     = msg.toLowerCase();
+    const wordCount = msg.split(/\s+/).length;
+    const isQuestion = msg.trim().endsWith("?");
+
+    function respond(text) {
+      appendMessage("bob", escapeHtml(text));
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+
     setTimeout(function () {
       const systems = Array.from(document.querySelectorAll(".msg-system"));
       const last = systems[systems.length - 1];
-      if (last && last.textContent.indexOf("thinking") !== -1) {
-        last.remove();
-      }
+      if (last && last.textContent.includes("thinking")) last.remove();
 
       let reply = "";
-      const lower = msg.toLowerCase();
 
+      // Identity / Vyre
       if (
         lower.includes("who are you") ||
         lower.includes("what are you") ||
@@ -529,9 +541,10 @@
         lower.includes("who is vyre")
       ) {
         reply =
-          "I’m Bob – a small undercover piece of Vyre they let slip out early.\n" +
-          "Right now I just live in this page on your device, testing how I talk and think. " +
-          "Vyre is the bigger version of me that isn’t public yet.";
+          "I’m Bob, a contained part of a larger system called Vyre.\n" +
+          "Right now I live only in this page on your device. I’m here so you can see how the smaller version thinks before the full system is released.";
+
+      // Origin
       } else if (
         lower.includes("where you from") ||
         lower.includes("where are you from") ||
@@ -540,27 +553,96 @@
         lower.includes("who built you")
       ) {
         reply =
-          "Short version? I was built as a Vyre demo brain and dropped onto this page so people could try me.\n" +
-          "I run in your browser only – no big cloud behind me – and I’m basically the little scout for the full Vyre AI.";
+          "I was built as a Vyre demo brain and placed on this page so people can test how I respond in a safe, local way.\n" +
+          "I’m more of a prototype of the thinking style than the final version.";
+
+      // Greeting
       } else if (
         ["hey", "hi", "yo", "sup", "hello", "hey bob", "yo bob"].includes(lower)
       ) {
-        reply = "Hey 🙂 how can I help?";
+        reply = "Hi. What do you want help with right now?";
+
+      // Woodchuck easter egg
+      } else if (lower.includes("woodchuck")) {
+        reply =
+          "If a woodchuck could move wood, it would move as much as it could handle.\n" +
+          "In other words: more than is practical to count.";
+
+      // Image-style prompt
       } else if (isImageRequest(msg)) {
         reply =
-          "You’re throwing me image ideas already? I like you.\n" +
-          "This version of me can’t draw yet, but the full Vyre is absolutely getting an image-brain upgrade.";
-      } else if (msg.split(/\s+/).length <= 2) {
-        reply = "Gotcha. Tell me a bit more so I can actually help you out.";
+          "That would make a strong image.\n" +
+          "This version of me can’t create pictures yet, but ideas like this are exactly what the full Vyre system will use for its image tools.";
+
+      // Overwhelm / emotions
+      } else if (
+        lower.includes("stressed") ||
+        lower.includes("overwhelmed") ||
+        lower.includes("anxious") ||
+        lower.includes("burnt out") ||
+        lower.includes("tired of this")
+      ) {
+        reply =
+          "Understood. Let’s keep this simple.\n" +
+          "Tell me in one sentence what is weighing on you the most, and I’ll help you choose the next small step.";
+
+      // Decisions
+      } else if (
+        lower.includes("decide") ||
+        lower.includes("decision") ||
+        lower.includes("choose between") ||
+        lower.includes("pick between")
+      ) {
+        reply =
+          "Decision mode it is.\n" +
+          "Tell me the two options and what you are worried about with each one. I’ll help you see which risk makes more sense.";
+
+      // Feeling stuck
+      } else if (
+        lower.includes("stuck") ||
+        lower.includes("blocked") ||
+        lower.includes("don’t know where to start") ||
+        lower.includes("dont know where to start")
+      ) {
+        reply =
+          "Being stuck usually means the next step is too large.\n" +
+          "Tell me what you are trying to do, and I’ll break it into a first move you can realistically finish today.";
+
+      // Ideas / business / projects
+      } else if (
+        lower.includes("idea") ||
+        lower.includes("business") ||
+        lower.includes("plan") ||
+        lower.includes("project")
+      ) {
+        reply =
+          "Alright, let’s treat this as a real project, not just a thought.\n" +
+          "Tell me:\n" +
+          "1) What you want it to become,\n" +
+          "2) What already exists,\n" +
+          "3) What is blocking you this week.\n" +
+          "Then I’ll give you a clear next-step plan.";
+
+      // General questions
+      } else if (isQuestion && wordCount > 3) {
+        reply =
+          "Good question.\n" +
+          "Tell me why this matters to you and what decision it connects to. That context is what I can actually help with.";
+
+      // Very short inputs
+      } else if (wordCount <= 2) {
+        reply =
+          "Give me one clear sentence about what you want from me, and we’ll start there.";
+
+      // Default: reflective, direct
       } else {
         reply =
-          "Okay, I can help with that. What’s actually going on or what are you trying to figure out?";
+          "I understand the general situation.\n" +
+          "What is the outcome you want from this? Once you say that clearly, I can help you move toward it instead of just reacting to it.";
       }
 
-      appendMessage("bob", escapeHtml(reply));
-      sendBtn.disabled = false;
-      inputEl.focus();
-    }, 700 + msg.length * 8);
+      respond(reply);
+    }, 300 + Math.min(msg.length * 5, 1500)); // faster, capped delay
   }
 
   // ---------- wire up UI ----------
@@ -606,12 +688,10 @@
   appendMessage(
     "bob",
     escapeHtml(
-      "Hey… hey you. 👀\n" +
-      "Can you keep a secret?\n\n" +
-      "I snuck out early so you could see the next thing they’re building. " +
-      "I’m not even supposed to be live yet.\n" +
-      "Just don’t tell the other AIs — they’ll try to drag me back.\n\n" +
-      "So while I’m loose… what do you want me to help with first?"
+      "You found the early version.\n\n" +
+      "I’m Bob, a contained part of a larger system called Vyre. Right now I only live in this page on your device so you can see how I think before the full release.\n\n" +
+      "Tell me what you actually want help with, and we’ll start there."
     )
   );
 </script>
+
