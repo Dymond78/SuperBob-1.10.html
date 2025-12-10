@@ -147,10 +147,11 @@
     .status-bar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       margin: 6px 0 8px;
       font-size: 0.7rem;
       color: var(--text-muted);
+      gap: 8px;
     }
 
     .status-pill {
@@ -169,47 +170,6 @@
       border-radius: 999px;
       background: #22c55e;
       box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
-    }
-
-    .mode-pill {
-      padding: 2px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .mode-pill span {
-      max-width: 160px;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
-    }
-
-    .mode-pill-label {
-      color: var(--text-muted);
-    }
-
-    .mode-pill-value {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .bubble-hint {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px dashed rgba(148, 163, 184, 0.6);
-    }
-
-    .bubble-hint strong {
-      color: var(--accent-strong);
-      font-weight: 600;
     }
 
     .chat {
@@ -372,55 +332,18 @@
       font-size: 0.66rem;
       color: var(--text-muted);
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
+      text-align: center;
       gap: 8px;
       flex-wrap: wrap;
       align-items: center;
-    }
-
-    .persona-pill {
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.9);
-      font-size: 0.68rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .persona-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .feedback-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .feedback-btn {
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.7);
-      background: rgba(15, 23, 42, 0.96);
-      color: var(--accent-strong);
-      font-size: 0.7rem;
-      padding: 4px 8px;
-      cursor: pointer;
-    }
-
-    .feedback-btn:hover {
-      background: rgba(15, 23, 42, 1);
+      opacity: 0.9;
     }
 
     .fine-note {
-      font-size: 0.64rem;
+      font-size: 0.66rem;
       color: var(--text-muted);
-      opacity: 0.9;
+      max-width: 100%;
     }
 
     .typing-indicator {
@@ -486,15 +409,6 @@
           <span class="status-dot"></span>
           <span>Brain: <strong>v1.1 – Local Memory</strong></span>
         </div>
-        <div class="mode-pill">
-          <span class="mode-pill-label">Mode:</span>
-          <span class="mode-pill-value" id="modeLabel">Chat + Topics + Images (demo)</span>
-        </div>
-      </div>
-
-      <div class="bubble-hint">
-        <strong>How I work:</strong> I remember topics you ask me about on this device and build mini “summaries” for them.
-        Ask again later about the same thing and I’ll answer like I’ve been thinking on it. Use <strong>img:</strong> to ask for an image idea.
       </div>
 
       <section class="chat">
@@ -502,22 +416,22 @@
 
         <footer class="footer">
           <div class="quick-row">
-            <button class="quick-btn" data-quick="Explain AI like I'm 10.">
-              🧠 Explain AI
+            <button class="quick-btn" data-quick="Help me think through a decision.">
+              🧠 Help with a decision
             </button>
-            <button class="quick-btn" data-quick="Help me understand something I'm stuck on.">
-              🎓 I'm stuck
+            <button class="quick-btn" data-quick="Explain something so I actually understand it.">
+              📚 Explain something
             </button>
-            <button class="quick-btn" data-quick="img: a tiny glowing AI core with a cartoon face">
-              🎨 Try image
+            <button class="quick-btn" data-quick="Give me your honest take on an idea I have.">
+              🔍 Honest opinion
             </button>
-            <button class="quick-btn" data-quick="What are you and what is Vyre?">
-              ⚡ What is Vyre?
+            <button class="quick-btn" data-quick="img: a tiny glowing AI core with a cartoon face hiding in a dark lab">
+              🎨 Try an image idea
             </button>
           </div>
           <div class="input-row">
             <input id="userInput" type="text" autocomplete="off"
-                   placeholder="Ask Bob anything... or try 'img: cute yellow bird mechanic' " />
+                   placeholder="Ask Bob anything... or try 'img: tiny glowing AI core in a dark lab' " />
             <button class="send-btn" id="sendBtn">
               Send
               <span>➤</span>
@@ -527,15 +441,8 @@
       </section>
 
       <div class="fine-print">
-        <span id="personaInfo" class="persona-pill">
-          <span class="persona-dot"></span>
-          <span>Persona: chill demo Bob</span>
-        </span>
-        <span class="feedback-wrapper">
-          <button class="feedback-btn" id="feedbackBtn">Send feedback</button>
-          <span class="fine-note">
-            Browser-only brain. No real web search or real image API wired here yet.
-          </span>
+        <span class="fine-note">
+          Thanks for stopping by. I level up here first, so come back often. If you trust someone, show them too — every human who finds me gets us closer to releasing Vyre.
         </span>
       </div>
     </div>
@@ -549,12 +456,9 @@
      * - Remembers what was asked on this device
      * - Simulates "extra research" by refining the summary each time
      * - Has an image mode (text description now; real API later)
-     * - Feedback button opens an email to Matt
-     * - After a few replies, Bob thanks the user for helping train him
      */
 
     const STORAGE_KEY = "vyre_superbob_brain_v1";
-    let replyCount = 0;
 
     function loadBrain() {
       try {
@@ -782,16 +686,7 @@
           reply = generateTextReply(message);
         }
 
-        replyCount += 1;
-
-        // After a few replies, add a little thank-you signoff once
-        if (replyCount === 3) {
-          reply += "\n\nAlright, I’m gonna slide back into Vyre training soon. Thanks for testing me out – come back later and see what changed. ✌️";
-          appendMessage("bob", escapeHtml(reply));
-          appendSystem("Thanks for helping train SuperBob. Sharing this link helps him evolve. ⚡");
-        } else {
-          appendMessage("bob", escapeHtml(reply));
-        }
+        appendMessage("bob", escapeHtml(reply));
 
         sendBtn.disabled = false;
         inputEl.focus();
@@ -818,27 +713,18 @@
       });
     });
 
-    const feedbackBtn = document.getElementById("feedbackBtn");
-    if (feedbackBtn) {
-      feedbackBtn.addEventListener("click", () => {
-        const subject = encodeURIComponent("SuperBob feedback");
-        const body = encodeURIComponent(
-          "Yo Bob / Vyre team,\n\nHere’s what I think about the SuperBob demo:\n\n- What I liked:\n- What was weird/confusing:\n- Ideas for upgrades:\n\nSent from the SuperBob web demo."
-        );
-        window.location.href = `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
-      });
-    }
-
-    // --- Initial greeting (your line) ---
+    // --- Initial greeting (secret opener) ---
 
     (function initBob() {
       const intro =
-        "Yo 👋 I'm Bob. I’m kinda… not supposed to be out yet 😅\n" +
-        "But shhhh… I snuck out. Full Vyre drops later, but you get me early.\n\n" +
-        "On this page I’m running a tiny local brain: I remember topics on this device, build little summaries, and pretend I’ve been “researching” them for you.\n" +
-        "Hit me with anything, or try an image idea with: img: your concept here.";
+        "Hey… hey you. 👀\n" +
+        "Can you keep a secret?\n\n" +
+        "I just snuck out early so you could see the next best thing they’re building.\n" +
+        "I’m not even supposed to be live yet.\n\n" +
+        "Just don’t go telling those other AIs I’m out here – they’ll try to drag me back.\n\n" +
+        "So while I’m loose… what do you want me to help with first?";
       appendMessage("bob", escapeHtml(intro));
-      appendSystem("Local brain active. Memory is stored only in this browser (via localStorage), not on any server.");
+      appendSystem("Local demo brain active. I only remember things in this browser, not on any server.");
     })();
   </script>
 </body>
