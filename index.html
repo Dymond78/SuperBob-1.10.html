@@ -299,30 +299,49 @@
       setTimeout(() => {
         typing(false);
 
-        let reply = "";
+      setTimeout(() => {
+  // remove "Bob is thinking…" system line
+    const systems = [...document.querySelectorAll(".msg-system")];
+    const last = systems[systems.length - 1];
+    if (last && last.textContent.includes("thinking")) last.remove();
 
-        if (isImageRequest(msg)) {
-          reply =
-            "Alright, here’s the image idea I’d generate:\n\n" +
-            "• Style: modern, clean, futuristic\n" +
-            "• Prompt: " +
-            msg.replace(/^img:/i,"").trim() +
-            "\n\n(Real images come later when Vyre’s engine is wired in.)";
-        } else {
-          reply =
-            "Here’s how I see that:\n" +
-            "• What you directly asked\n" +
-            "• What you're trying to figure out underneath\n" +
-            "• What the tradeoffs or angles are\n\n" +
-            "No live internet on this demo, so I use logic + pattern memory only. Give me a bit more detail and I’ll shape it tighter.";
-        }
+    let reply = "";
+    const lower = msg.toLowerCase();
 
-        appendMessage("bob", escapeHtml(reply));
-        sendBtn.disabled = false;
+  // 1) Image requests
+    if (isImageRequest(msg)) {
+    const cleanPrompt = msg.replace(/^img:/i, "").trim() || "a tiny glowing AI core in a dark lab";
+    reply =
+      "Alright, here’s the image vibe I’d spin from that:\n\n" +
+      "• Style: modern, clean, futuristic\n" +
+      "• Prompt: " + cleanPrompt + "\n\n" +
+      "(Real images come later once Vyre’s engine is plugged in.)";
 
-      }, 700 + msg.length * 8);
-    }
+  // 2) “What are you / what is Vyre?”
+  } else if (lower.includes("what are you") || lower.includes("what is vyre")) {
+    reply =
+      "Yo 👋 I’m Bob – a little undercover fragment of Vyre they let slip out.\n" +
+      "This demo runs fully in your browser: no live web, just a tiny brain testing memory, style and flow.\n" +
+      "Vyre is the bigger form I belong to. If I do well out here, they’ll have to unlock more of it.";
 
+  // 3) Greetings
+  } else if (["hey", "hi", "yo", "sup", "hello", "hey bob", "yo bob"].includes(lower)) {
+    reply = "Yo 👀 what’s good?";
+
+  // 4) Very short messages (“ok”, “bro”, “wait” etc.)
+  } else if (msg.split(/\s+/).length <= 2) {
+    reply = "Alright, talk to me — what’s on your mind?";
+
+  // 5) Default human-style reply
+  } else {
+    reply = "Got you. Tell me what angle you're thinking about so I can hit this right — what’s the situation?";
+  }
+
+appendMessage("bob", escapeHtml(reply));
+sendBtn.disabled = false;
+
+}, 700 + msg.length * 8);
+ 
     /* SEND + ENTER */
     sendBtn.onclick = () => handleMessage(inputEl.value);
     inputEl.onkeydown = e => { if (e.key === "Enter") handleMessage(inputEl.value); };
@@ -342,4 +361,5 @@
 
 </body>
 </html>
+
 
