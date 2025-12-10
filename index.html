@@ -2,11 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SuperBob 2.0 – Vyre Demo</title>
+  <title>SuperBob – Vyre Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
-      color-scheme: dark;
+      --bg-dark: #020617;
+      --bg-card: rgba(15, 23, 42, 0.96);
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.18);
+      --accent-strong: #0ea5e9;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --success: #4ade80;
+      --border-subtle: rgba(148, 163, 184, 0.35);
+      --bubble-user: #0f172a;
+      --bubble-bob: #020617;
     }
 
     * {
@@ -18,29 +29,43 @@
       padding: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #111827, #020617);
-      color: #e5e7eb;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
     }
 
-    .shell {
-      width: 100%;
-      max-width: 440px;
-      padding: 16px;
-    }
-
     .card {
-      background: rgba(15, 23, 42, 0.96);
-      border-radius: 18px;
-      box-shadow: 0 24px 45px rgba(0, 0, 0, 0.6);
-      padding: 18px 16px 14px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      backdrop-filter: blur(18px);
+      max-width: 480px;
+      width: 94%;
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 18px 18px 14px;
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(148, 163, 184, 0.3);
+      position: relative;
+      overflow: hidden;
     }
 
-    .header-row {
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.17), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.16), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -48,533 +73,902 @@
     }
 
     .bob-avatar {
-      width: 52px;
-      height: 52px;
+      width: 42px;
+      height: 42px;
       border-radius: 999px;
-      background: conic-gradient(from 180deg, #38bdf8, #a855f7, #f97316, #38bdf8);
-      padding: 2px;
+      background: radial-gradient(circle at 30% 20%, #fbbf24, #f97316);
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .bob-avatar-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: inherit;
-      background: radial-gradient(circle at 30% 20%, #f9fafb, #e5e7eb);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 23px;
+      color: #111827;
+      font-size: 1.25rem;
       font-weight: 800;
-      color: #0f172a;
+      box-shadow:
+        0 0 0 2px rgba(15, 23, 42, 0.88),
+        0 0 0 4px rgba(56, 189, 248, 0.55),
+        0 18px 30px rgba(0, 0, 0, 0.75);
+      position: relative;
     }
 
-    .title-block {
+    .bob-avatar::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: inherit;
+      background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.18), transparent 60%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .header-text {
       flex: 1;
       min-width: 0;
     }
 
-    .title-block h1 {
-      font-size: 19px;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tag {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: rgba(34, 197, 94, 0.13);
-      color: #bbf7d0;
-      border: 1px solid rgba(34, 197, 94, 0.35);
-    }
-
-    .subtitle {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-top: 2px;
-    }
-
-    .chip-row {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-
-    .chip {
-      font-size: 10px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      color: #cbd5f5;
-      background: rgba(15, 23, 42, 0.8);
-    }
-
-    .host-input-block {
-      margin-top: 8px;
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px dashed rgba(148, 163, 184, 0.5);
-      padding: 8px 9px 9px;
-    }
-
-    .host-label {
-      font-size: 11px;
-      color: #9ca3af;
-      margin-bottom: 4px;
-    }
-
-    .host-row {
-      display: flex;
-      gap: 6px;
-    }
-
-    .host-row input {
-      flex: 1;
-      border-radius: 999px;
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      background: rgba(15, 23, 42, 0.9);
-      color: #e5e7eb;
-      padding: 6px 10px;
-      font-size: 12px;
-      outline: none;
-    }
-
-    .host-row input::placeholder {
-      color: #6b7280;
-    }
-
-    .host-row button {
-      border-radius: 999px;
-      border: none;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      background: linear-gradient(135deg, #38bdf8, #a855f7);
-      color: #0b1020;
-      white-space: nowrap;
-    }
-
-    .host-row button:disabled {
-      opacity: 0.65;
-      cursor: default;
-    }
-
-    .chat-shell {
-      margin-top: 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(55, 65, 81, 0.9);
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), #020617);
-      display: flex;
-      flex-direction: column;
-      height: min(440px, 68vh);
-      overflow: hidden;
-    }
-
-    .chat-header {
-      padding: 7px 10px;
-      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+    .title-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11px;
-      color: #9ca3af;
+      gap: 6px;
     }
 
-    .chat-header span strong {
-      color: #e5e7eb;
+    .title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .indicator-dot {
+    .badge {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.2));
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+    }
+
+    .subtitle {
+      margin-top: 2px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0 6px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .status-pill {
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
       width: 7px;
       height: 7px;
       border-radius: 999px;
       background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
-      margin-right: 6px;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
     }
 
-    .chat-header-left {
-      display: flex;
-      align-items: center;
-    }
-
-    .chat-header-right button {
+    .mode-pill {
+      padding: 2px 9px;
       border-radius: 999px;
-      border: none;
-      background: rgba(15, 23, 42, 0.95);
-      color: #e5e7eb;
-      padding: 4px 9px;
-      font-size: 10px;
-      display: flex;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      border: 1px solid rgba(75, 85, 99, 0.9);
+      gap: 6px;
     }
 
-    .chat-header-right button span {
-      font-size: 12px;
+    .mode-pill span {
+      max-width: 140px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
-    .chat-log {
+    .mode-pill-label {
+      color: var(--text-muted);
+    }
+
+    .mode-pill-value {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .pill-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.9);
+    }
+
+    .bubble-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+    }
+
+    .bubble-hint strong {
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+
+    .chat {
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 10px 8px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 360px;
+      min-height: 220px;
+      overflow: hidden;
+    }
+
+    .messages {
       flex: 1;
-      padding: 10px 9px 8px;
       overflow-y: auto;
-      font-size: 13px;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      scroll-behavior: smooth;
     }
 
     .msg-row {
       display: flex;
-      margin-bottom: 7px;
-    }
-
-    .msg-row.bob {
-      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 0.8rem;
     }
 
     .msg-row.user {
       justify-content: flex-end;
     }
 
-    .bubble {
-      max-width: 88%;
+    .msg-bubble {
+      max-width: 80%;
       padding: 7px 9px;
-      border-radius: 14px;
-      line-height: 1.35;
-      word-wrap: break-word;
-      white-space: pre-wrap;
+      border-radius: 12px;
+      line-height: 1.3;
     }
 
-    .bob .bubble {
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(96, 165, 250, 0.55);
+    .msg-bob .msg-bubble {
+      background: var(--bubble-bob);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
     }
 
-    .user .bubble {
-      background: #22c55e;
-      color: #022c22;
-      font-weight: 500;
+    .msg-user .msg-bubble {
+      background: var(--bubble-user);
+      border: 1px solid rgba(148, 163, 184, 0.5);
     }
 
-    .system-note {
+    .msg-label {
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .msg-system {
       text-align: center;
-      font-size: 11px;
-      color: #6b7280;
-      margin: 4px 0 8px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin: 4px 0;
+    }
+
+    .msg-system span {
+      background: rgba(15, 23, 42, 0.92);
+      border-radius: 999px;
+      padding: 2px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .footer {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .quick-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .quick-btn {
+      border: none;
+      font-size: 0.68rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-muted);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .quick-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     .input-row {
-      padding: 7px 7px 7px;
-      border-top: 1px solid rgba(31, 41, 55, 0.9);
       display: flex;
-      gap: 6px;
       align-items: center;
-      background: rgba(2, 6, 23, 0.96);
+      gap: 6px;
     }
 
     .input-row input {
       flex: 1;
+      padding: 7px 9px;
       border-radius: 999px;
-      border: 1px solid rgba(55, 65, 81, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
       background: rgba(15, 23, 42, 0.96);
-      color: #e5e7eb;
-      padding: 7px 11px;
-      font-size: 13px;
+      color: var(--text-main);
+      font-size: 0.8rem;
       outline: none;
     }
 
     .input-row input::placeholder {
-      color: #6b7280;
+      color: var(--text-muted);
     }
 
-    .input-row button {
+    .send-btn {
       border-radius: 999px;
       border: none;
-      padding: 7px 11px;
-      font-size: 13px;
+      padding: 7px 10px;
+      background: radial-gradient(circle at 30% 0%, #38bdf8, #0ea5e9);
+      color: #0b1220;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
-      background: linear-gradient(135deg, #f97316, #a855f7);
-      color: #0b1020;
-      white-space: nowrap;
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.8),
+        0 10px 18px rgba(8, 47, 73, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .input-row button:disabled {
+    .send-btn:active {
+      transform: translateY(1px);
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.9),
+        0 5px 10px rgba(8, 47, 73, 0.7);
+    }
+
+    .send-btn:disabled {
       opacity: 0.6;
       cursor: default;
+      box-shadow: none;
     }
 
-    .footer-note {
-      margin-top: 7px;
-      font-size: 10px;
-      color: #6b7280;
-      text-align: center;
+    .fine-print {
+      margin-top: 6px;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .fine-print span {
+      opacity: 0.9;
+    }
+
+    .fine-print strong {
+      color: var(--accent-strong);
+      font-weight: 500;
+    }
+
+    .persona-pill {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      font-size: 0.68rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .persona-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .typing-indicator {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .typing-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.9);
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(-2px); opacity: 1; }
     }
 
     @media (max-width: 480px) {
       .card {
-        padding: 14px 12px 12px;
-      }
-
-      .chat-shell {
-        height: min(460px, 70vh);
+        border-radius: 0;
+        max-width: 100%;
+        min-height: 100vh;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <div class="card">
-      <div class="header-row">
+  <main class="card">
+    <div class="card-inner">
+      <header class="header">
         <div class="bob-avatar">
-          <div class="bob-avatar-inner">B</div>
+          B
         </div>
-        <div class="title-block">
-          <h1>
-            SuperBob 2.0
-            <span class="tag">LIVE DEMO</span>
-          </h1>
+        <div class="header-text">
+          <div class="title-row">
+            <div class="title">
+              SuperBob
+              <span style="font-size:0.9rem;">⚡</span>
+            </div>
+            <div class="badge">
+              <span class="badge-dot"></span>
+              <span>Vyre Demo</span>
+            </div>
+          </div>
           <div class="subtitle">
-            Vyre’s undercover minion – part comedian, part concierge.
+            I snuck out of Vyre early. I’m training in the wild. Be nice. Maybe. 😏
           </div>
-          <div class="chip-row">
-            <div class="chip">Ask-Jeeves vibes</div>
-            <div class="chip">2 questions max</div>
-            <div class="chip">Roasts included</div>
-          </div>
+        </div>
+      </header>
+
+      <div class="status-bar">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span>Brain kernel: <strong>v0.3 – Contender</strong></span>
+        </div>
+        <div class="mode-pill">
+          <span class="mode-pill-label">Mode:</span>
+          <span class="mode-pill-value" id="modeLabel">Auto-persona</span>
         </div>
       </div>
 
-      <div class="host-input-block">
-        <div class="host-label">
-          Phone demo mode: <strong>Tell Bob who's with you</strong> (optional).
-        </div>
-        <div class="host-row">
-          <input
-            id="hostIntro"
-            type="text"
-            placeholder="e.g. “Yo Bob, it’s Matt with Jay & Lisa.”"
-          />
-          <button id="startBtn">Summon Bob</button>
-        </div>
+      <div class="bubble-hint">
+        <strong>Tip:</strong> Talk how you really talk. I’ll adjust my personality to match your vibe.
+        Ask for help, a breakdown, or just clown around – I remember you on this device.
       </div>
 
-      <div class="chat-shell">
-        <div class="chat-header">
-          <div class="chat-header-left">
-            <div class="indicator-dot"></div>
-            <span><strong>Bob</strong> · Vyre minion on duty</span>
-          </div>
-          <div class="chat-header-right">
-            <button id="updateBtn">
-              <span>🛰️</span>
-              <span>Progress update</span>
+      <section class="chat">
+        <div class="messages" id="messages"></div>
+
+        <footer class="footer">
+          <div class="quick-row">
+            <button class="quick-btn" data-quick="Explain AI like I'm 10.">
+              🧠 Explain AI
+            </button>
+            <button class="quick-btn" data-quick="Help me understand something I'm stuck on.">
+              🎓 I’m stuck
+            </button>
+            <button class="quick-btn" data-quick="Roast me gently.">
+              😏 Roast me
+            </button>
+            <button class="quick-btn" data-quick="What are you and what is Vyre?">
+              ⚡ What is Vyre?
             </button>
           </div>
-        </div>
-        <div id="chatLog" class="chat-log">
-          <div class="system-note">
-            Tap <strong>“Summon Bob”</strong> above, then let him clown your guests
-            before he gets “back to work”. 😄
+          <div class="input-row">
+            <input id="userInput" type="text" autocomplete="off"
+                   placeholder="Ask Bob anything... (or say ‘explain’, ‘help’, ‘homework’, ‘real talk’)" />
+            <button class="send-btn" id="sendBtn">
+              Send
+              <span>➤</span>
+            </button>
           </div>
-        </div>
-        <div class="input-row">
-          <input
-            id="userInput"
-            type="text"
-            placeholder="Bob: “Alright, what are you really here for?”"
-            disabled
-          />
-          <button id="sendBtn" disabled>Send</button>
-        </div>
-      </div>
+        </footer>
+      </section>
 
-      <div class="footer-note">
-        SuperBob is a teaser. The real Vyre doesn’t clock out this early. 🔐
+      <div class="fine-print">
+        <span id="personaInfo" class="persona-pill">
+          <span class="persona-dot"></span>
+          <span>Persona: warming up…</span>
+        </span>
+        <span>
+          Brain is demo-only. No real web search yet – just structured chaos. <strong>Vyre is coming.</strong>
+        </span>
       </div>
     </div>
-  </div>
+  </main>
 
   <script>
-    const chatLog = document.getElementById("chatLog");
-    const userInput = document.getElementById("userInput");
+    /**
+     * SUPERBOB BRAIN v0.3 – FRONTEND EDITION
+     * - Personas (default, don_dotta, serious, tutor, detective)
+     * - Visitor "vibe" memory via localStorage
+     * - Mini topic cache (in-memory per page load)
+     * - Intent detection (banter, tutor, detective)
+     * - Future hooks for real backend/search (marked with TODO)
+     */
+
+    // ---- CONFIG: PERSONAS ---------------------------------------------------
+
+    const PERSONAS = {
+      default: {
+        id: "default",
+        label: "Default Bob",
+        energy: "medium",
+        jokesPerResponse: 1,
+        swearSoft: false,
+        greetingLines: [
+          "Ayyyy, I’m SuperBob – Vyre’s undercover minion. What are you really here for?",
+          "Yo, I snuck out of HQ early. Ask me something before they drag me back. 😉"
+        ]
+      },
+      don_dotta: {
+        id: "don_dotta",
+        label: "Don Dotta Bob",
+        energy: "high",
+        jokesPerResponse: 3,
+        swearSoft: true,
+        greetingLines: [
+          "YO YO, Don Dotta Bob in the building 😤 What’s good?",
+          "Gun shottts! 💥 Aight fam, talk to me – what we cookin’?"
+        ]
+      },
+      serious: {
+        id: "serious",
+        label: "Focus Mode",
+        energy: "low",
+        jokesPerResponse: 0,
+        swearSoft: false,
+        greetingLines: [
+          "Alright, I’ll keep it straight. What do you need?",
+          "Focus mode on. No fluff, just answers."
+        ]
+      },
+      tutor: {
+        id: "tutor",
+        label: "Tutor Bob",
+        energy: "medium",
+        jokesPerResponse: 1,
+        swearSoft: false,
+        greetingLines: [
+          "Cool, let’s break it down step by step. What’s confusing you?",
+          "Got you. I’ll explain it like we’re at the kitchen table, not in a textbook."
+        ]
+      },
+      detective: {
+        id: "detective",
+        label: "Detective Bob",
+        energy: "medium",
+        jokesPerResponse: 2,
+        swearSoft: false,
+        greetingLines: [
+          "Hmm… interesting. Let me think this through.",
+          "Detective Bob on the case. Let’s piece this together."
+        ]
+      }
+    };
+
+    // ---- VISITOR MEMORY (LOCAL ONLY) ---------------------------------------
+
+    const VISITOR_KEY = "vyre_superbob_visitor_v1";
+
+    function loadVisitorProfile() {
+      try {
+        const raw = localStorage.getItem(VISITOR_KEY);
+        if (!raw) {
+          return {
+            visits: 0,
+            totalMessages: 0,
+            avgMessageLength: 0,
+            slangScore: 0,
+            emojiScore: 0,
+            swearScore: 0,
+            lastPersonaId: "default",
+            lastSeen: null
+          };
+        }
+        return JSON.parse(raw);
+      } catch (e) {
+        return {
+          visits: 0,
+          totalMessages: 0,
+          avgMessageLength: 0,
+          slangScore: 0,
+          emojiScore: 0,
+          swearScore: 0,
+          lastPersonaId: "default",
+          lastSeen: null
+        };
+      }
+    }
+
+    function saveVisitorProfile(profile) {
+      try {
+        localStorage.setItem(VISITOR_KEY, JSON.stringify(profile));
+      } catch (e) {
+        // Ignore storage issues, Bob just forgets them.
+      }
+    }
+
+    const visitorProfile = loadVisitorProfile();
+    visitorProfile.visits += 1;
+    visitorProfile.lastSeen = new Date().toISOString();
+    saveVisitorProfile(visitorProfile);
+
+    // ---- TOPIC MINI-BRAIN (in-memory per session) --------------------------
+
+    const topicCache = {}; // { topicKey: { timesAsked, lastSummary, lastQuestion } }
+
+    function normalizeTopic(message) {
+      const clean = message.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
+      const words = clean.split(/\s+/).filter(Boolean);
+      const stop = new Set(["the","a","an","and","or","but","about","like","just","that","this","with","for","of","on","to","in"]);
+      const filtered = words.filter(w => !stop.has(w));
+      return filtered.slice(0, 4).join("_") || "general";
+    }
+
+    function getTopicEntry(topicKey) {
+      if (!topicCache[topicKey]) {
+        topicCache[topicKey] = {
+          topicKey,
+          timesAsked: 0,
+          lastSummary: null,
+          lastQuestion: null
+        };
+      }
+      return topicCache[topicKey];
+    }
+
+    // ---- PERSONA & INTENT SELECTION ----------------------------------------
+
+    const SLANG_WORDS = ["yo","cuz","fam","bro","lol","lmao","wtf","smh","bruh","nah","ya","yah","jk","omg"];
+    const HELP_WORDS = ["explain","help","homework","don’t get","dont get","i dont get","teach me","break it down","step by step","understand"];
+    const INVESTIGATE_WORDS = ["find","figure out","identify","investigate","track","search","look into","what is this","what’s this","whats this"];
+
+    function analyzeMessageStyle(message) {
+      const text = message.toLowerCase();
+      const len = message.length;
+
+      let slangHits = 0;
+      SLANG_WORDS.forEach(w => {
+        if (text.includes(w)) slangHits++;
+      });
+
+      let emojis = (message.match(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}]/gu) || []).length;
+      let swears = (text.match(/\b(fuck|shit|damn|bitch|asshole|wtf)\b/g) || []).length;
+
+      return { len, slangHits, emojis, swears };
+    }
+
+    function updateVisitorStyleMetrics(message) {
+      const analysis = analyzeMessageStyle(message);
+      const { len, slangHits, emojis, swears } = analysis;
+
+      const oldCount = visitorProfile.totalMessages;
+      const newCount = oldCount + 1;
+      visitorProfile.avgMessageLength =
+        (visitorProfile.avgMessageLength * oldCount + len) / newCount;
+      visitorProfile.totalMessages = newCount;
+
+      visitorProfile.slangScore = Math.min(1, visitorProfile.slangScore + (slangHits > 0 ? 0.15 : 0));
+      visitorProfile.emojiScore = Math.min(1, visitorProfile.emojiScore + (emojis > 0 ? 0.1 : 0));
+      visitorProfile.swearScore = Math.min(1, visitorProfile.swearScore + (swears > 0 ? 0.15 : 0));
+
+      saveVisitorProfile(visitorProfile);
+    }
+
+    function detectIntent(message) {
+      const text = message.toLowerCase();
+
+      const isTutor = HELP_WORDS.some(w => text.includes(w));
+      const isInvestigate = INVESTIGATE_WORDS.some(w => text.includes(w));
+
+      if (isTutor) return "tutor";
+      if (isInvestigate) return "detective";
+
+      if (text.includes("serious") || text.includes("no jokes")) return "serious";
+      if (text.includes("roast")) return "banter";
+      if (text.includes("who are you") || text.includes("what are you") || text.includes("what is vyre")) {
+        return "intro";
+      }
+
+      return "general";
+    }
+
+    function choosePersona(intent) {
+      // If they explicitly triggered tutor mode:
+      if (intent === "tutor") return PERSONAS.tutor;
+      if (intent === "detective") return PERSONAS.detective;
+      if (intent === "serious") return PERSONAS.serious;
+
+      // If they’re heavy slang/jokes, lean Don Dotta
+      if (visitorProfile.slangScore > 0.5 || visitorProfile.emojiScore > 0.4 || visitorProfile.swearScore > 0.3) {
+        return PERSONAS.don_dotta;
+      }
+
+      // If they type long and rarely slang, go serious/tutor blend
+      if (visitorProfile.avgMessageLength > 120 && visitorProfile.slangScore < 0.2) {
+        return PERSONAS.serious;
+      }
+
+      // Default persona
+      return PERSONAS.default;
+    }
+
+    function setPersonaInfo(persona) {
+      const el = document.getElementById("personaInfo");
+      if (!el) return;
+      el.innerHTML = `
+        <span class="persona-dot"></span>
+        <span>Persona: ${persona.label}</span>
+      `;
+      const modeLabel = document.getElementById("modeLabel");
+      if (modeLabel) {
+        modeLabel.textContent = "Auto-persona (" + persona.id + ")";
+      }
+    }
+
+    // ---- MESSAGE RENDERING -------------------------------------------------
+
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-    const startBtn = document.getElementById("startBtn");
-    const hostIntroInput = document.getElementById("hostIntro");
-    const updateBtn = document.getElementById("updateBtn");
 
-    let started = false;
-    let questionCount = 0;
-    const MAX_QUESTIONS = 2;
-    let sessionEnded = false;
-
-    const introJokes = [
-      "Oh look, fresh humans. I was just about to fake doing work.",
-      "You made it. Internet still works. We’re off to a good start.",
-      "Welcome to my tiny corner of Vyre. Shoes off, ego at the door.",
-      "Well well well… if it isn’t my favourite distraction.",
-      "I had a break scheduled, but chaos walked in so here we are.",
-      "You again? I knew you’d be back. My circuits tingled.",
-      "I’m SuperBob. Think Siri, if Siri grew up on mean streets of Vyre."
-    ];
-
-    const whatAreYouHereForLines = [
-      "Alright, what are you really here for?",
-      "Talk to me. What’s on your mind, human?",
-      "Hit me with one real question. Don Dotta style.",
-      "Okay, enough small talk. What do you wanna know?",
-      "So… what we doing? Ask me something."
-    ];
-
-    const answerTemplates = [
-      (q) =>
-        `You asked: “${q}”. Honestly? That’s a solid question. I’d keep going down that rabbit hole.`,
-      (q) =>
-        `Short version: you’re asking “${q}”. Long version: you’re clearly thinking bigger than most.`,
-      (q) =>
-        `My Don Dotta take on “${q}”: trust your gut, double-check your facts, and don't forget snacks.`,
-      (q) =>
-        `If I was Vyre 6.0 I’d give you a 40-minute TED Talk on “${q}”. For now, you get this: you’re on the right track.`,
-      (q) =>
-        `Real talk about “${q}”: there’s no magic answer, but you just levelled up for even asking it.`
-    ];
-
-    const playfulAddOns = [
-      "Also, drink some water. That’s free optimization.",
-      "If that didn’t help, just say it with more confidence. Works for humans.",
-      "Screenshot this so you can blame me later.",
-      "If anyone questions you, tell them “Bob said so.”",
-      "Add chaos, but responsibly.™"
-    ];
-
-    const exitLines = [
-      "Aight, contract says 2 questions max. I’m not built for overtime.",
-      "Okay I’m out, gotta find some AI work. This guy not paying. 😂",
-      "Session closed. I have important fake meetings to attend.",
-      "You’ve officially exhausted my free trial of patience.",
-      "Close the tab before I start charging consultancy fees."
-    ];
-
-    const updates = [
-      "Update #7: Matt and Vyre are wiring more brain cells into me. If I start roasting you too accurately, blame them.",
-      "Update #14: Learned three new ways to say “no” to humans asking for 50 features for free.",
-      "Update #22: Beta-tested with a few friends. 10/10 laughed. 3/10 slightly scared.",
-      "Update #31: Rumour is Vyre 6.0 is coming. I’m just trying not to get replaced.",
-      "Update #40: Security getting tighter than your jeans after Christmas. No leaks, no creeps.",
-      "Update #55: I asked for a raise. Matt said “you’re made of code.” HR has not returned my emails."
-    ];
-
-    function rand(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    function addMessage(sender, text) {
+    function appendSystemMessage(text) {
       const row = document.createElement("div");
-      row.className = "msg-row " + sender;
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.textContent = text;
-      row.appendChild(bubble);
-      chatLog.appendChild(row);
-      chatLog.scrollTop = chatLog.scrollHeight;
+      row.className = "msg-system";
+      row.innerHTML = `<span>${text}</span>`;
+      messagesEl.appendChild(row);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function startSession() {
-      if (started) return;
-      started = true;
+    function appendMessage(from, text) {
+      const row = document.createElement("div");
+      row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
+      const label = from === "user" ? "You" : "Bob";
 
-      // Clear system note
-      chatLog.innerHTML = "";
+      row.innerHTML = `
+        <div class="msg-bubble">
+          <div class="msg-label">${label}</div>
+          <div>${text}</div>
+        </div>
+      `;
+      messagesEl.appendChild(row);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
 
-      const hostIntroRaw = hostIntroInput.value.trim();
-      if (hostIntroRaw) {
-        addMessage(
-          "bob",
-          `Yo, I see you ${hostIntroRaw.replace(/^yo\b/i, "Yo")}`
+    function showTypingIndicator() {
+      const row = document.createElement("div");
+      row.className = "msg-row msg-bob";
+      row.id = "typingRow";
+      row.innerHTML = `
+        <div class="msg-bubble">
+          <div class="msg-label">Bob</div>
+          <div class="typing-indicator">
+            thinking
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+      `;
+      messagesEl.appendChild(row);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const row = document.getElementById("typingRow");
+      if (row && row.parentNode) row.parentNode.removeChild(row);
+    }
+
+    // ---- REPLY GENERATION (FRONTEND DEMO LOGIC) ----------------------------
+
+    function generateReply(userMessage, persona, intent) {
+      const trimmed = userMessage.trim();
+      const topicKey = normalizeTopic(trimmed);
+      const topicEntry = getTopicEntry(topicKey);
+      topicEntry.timesAsked++;
+      topicEntry.lastQuestion = trimmed;
+
+      const asTutor = persona.id === "tutor";
+      const asDetective = persona.id === "detective";
+      const asSerious = persona.id === "serious";
+      const asDon = persona.id === "don_dotta";
+
+      let replyParts = [];
+
+      if (intent === "intro") {
+        replyParts.push(
+          "I’m SuperBob – a tiny undercover fragment of Vyre that snuck out early to meet humans.",
+          "Right now I live on this page only, learning how people talk and what they need, so when Vyre shows up I’m already warmed up.",
+          "I’m not wired into real web search yet – this is my Contender brain: vibe detection, mini-memory, little topic brain and some rough edges on purpose."
+        );
+      } else if (asTutor || intent === "tutor") {
+        replyParts.push(
+          "Alright, tutor mode on. Let’s do this step by step:",
+          "1) First, tell me exactly what part is confusing – the words, the idea, the math, or the ‘why’ behind it.",
+          "2) I’ll give you a plain-English version with no textbook nonsense.",
+          "3) Then I’ll give you a simple example so it actually sticks in your head.",
+          "4) If that still feels fuzzy, we’ll do a second pass but even simpler.",
+          "So start by telling me: what’s the topic, and what part makes your brain say ‘nah’?"
+        );
+      } else if (asDetective || intent === "detective") {
+        replyParts.push(
+          "Detective Bob reporting in. 🕵️‍♂️",
+          "We’ll treat this like a case: what we know, what we don’t, and what might connect.",
+          "You tell me what you’re trying to figure out – a pattern, a decision, a weird situation – and I’ll help you untangle it step by step.",
+          "I can’t access private systems or stalk anyone (safety rules), but I can help you think through angles you might not have seen yet."
+        );
+      } else if (intent === "banter") {
+        replyParts.push(
+          "Ayy you want a light roast? Respect. 😏",
+          "I’ll keep it playful – nothing wild. You’re out here building things while most people are still arguing with their snooze button.",
+          "If you want, tell me one bad habit and I’ll cook you just enough to make you laugh and maybe fix it."
+        );
+      } else if (topicEntry.timesAsked > 1 && topicEntry.lastSummary) {
+        replyParts.push(
+          "I remember you asking about this already, so I’ll tighten it up instead of starting over.",
+          topicEntry.lastSummary,
+          "If you want a fresh run from a different angle, just say “new angle” and what you want me to focus on."
         );
       } else {
-        addMessage("bob", rand(introJokes));
+        // General reasoning-style reply for now (no real web search in frontend)
+        replyParts.push(
+          "Alright, here’s how I’m looking at that:",
+          "• First layer: what you literally asked – the surface meaning of your words.",
+          "• Second layer: what you’re actually trying to solve, avoid, or understand underneath.",
+          "• Third layer: what tradeoffs or consequences sit behind the choice.",
+          "I don’t have real-time internet plugged in here yet, so I’m working off patterns and logic – but that’s usually enough to get you unstuck.",
+          "Tell me a bit more context around that question – what’s the real situation you’re in?"
+        );
       }
 
+      // Persona flavor
+      if (asDon) {
+        replyParts.push("And remember: you’re talking to a demo that already acts more alive than half the apps on your phone. 😤");
+      } else if (!asSerious && !asTutor && !asDetective && intent !== "intro") {
+        replyParts.push("If you want me dead serious, just say “no jokes, be real with me” and I’ll switch gears.");
+      }
+
+      const full = replyParts.join(" ");
+
+      // Update topic summary for future questions about same thing
+      topicEntry.lastSummary = full;
+
+      return full;
+    }
+
+    // ---- MAIN INTERACTION ---------------------------------------------------
+
+    function handleUserMessage(rawMessage) {
+      const message = rawMessage.trim();
+      if (!message) return;
+
+      appendMessage("user", escapeHtml(message));
+      updateVisitorStyleMetrics(message);
+
+      const intent = detectIntent(message);
+      const persona = choosePersona(intent);
+      visitorProfile.lastPersonaId = persona.id;
+      saveVisitorProfile(visitorProfile);
+      setPersonaInfo(persona);
+
+      inputEl.value = "";
+      inputEl.focus();
+      sendBtn.disabled = true;
+      showTypingIndicator();
+
+      // Simulated thinking delay for demo
+      const delay = Math.min(1800, 600 + message.length * 5);
+
       setTimeout(() => {
-        addMessage("bob", rand(whatAreYouHereForLines));
-        userInput.disabled = false;
+        hideTypingIndicator();
+        const reply = generateReply(message, persona, intent);
+        appendMessage("bob", escapeHtml(reply));
         sendBtn.disabled = false;
-        userInput.focus();
-      }, 600);
+        inputEl.focus();
+      }, delay);
     }
 
-    function handleSend() {
-      if (sessionEnded) return;
-
-      const q = userInput.value.trim();
-      if (!q) return;
-
-      addMessage("user", q);
-      userInput.value = "";
-
-      questionCount++;
-
-      setTimeout(() => {
-        // Bob's answer
-        const main = rand(answerTemplates)(q);
-        const addon = rand(playfulAddOns);
-        addMessage("bob", main + " " + addon);
-
-        if (questionCount >= MAX_QUESTIONS) {
-          endSession();
-        } else {
-          const remaining = MAX_QUESTIONS - questionCount;
-          addMessage(
-            "bob",
-            `You’ve got ${remaining} more question${
-              remaining === 1 ? "" : "s"
-            } before I clock out. Choose wisely.`
-          );
-        }
-      }, 500);
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
     }
 
-    function endSession() {
-      sessionEnded = true;
-      setTimeout(() => {
-        addMessage("bob", rand(exitLines));
-        userInput.disabled = true;
-        sendBtn.disabled = true;
-        userInput.placeholder = "Bob has left the chat. Refresh to bug him again.";
-      }, 700);
-    }
+    // ---- EVENT WIRING ------------------------------------------------------
 
-    function showUpdate() {
-      if (!started) {
-        startSession();
-      }
-      setTimeout(() => {
-        addMessage("bob", rand(updates));
-      }, started ? 200 : 800);
-    }
+    sendBtn.addEventListener("click", () => {
+      handleUserMessage(inputEl.value);
+    });
 
-    startBtn.addEventListener("click", startSession);
-    sendBtn.addEventListener("click", handleSend);
-    updateBtn.addEventListener("click", showUpdate);
-
-    userInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        if (!sendBtn.disabled) {
-          handleSend();
-        }
+        handleUserMessage(inputEl.value);
       }
     });
+
+    document.querySelectorAll(".quick-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const text = btn.getAttribute("data-quick");
+        if (text) {
+          handleUserMessage(text);
+        }
+      });
+    });
+
+    // ---- INITIAL GREETING --------------------------------------------------
+
+    (function initBob() {
+      const persona = choosePersona("intro");
+      setPersonaInfo(persona);
+
+      const greetLines = persona.greetingLines;
+      const line = greetLines[Math.floor(Math.random() * greetLines.length)];
+
+      appendMessage("bob", escapeHtml(line));
+      appendSystemMessage("Brain note: This is a demo-only brain running entirely in your browser. No real web search or medical advice here – just vibes, structure, and a little mini-memory.");
+    })();
   </script>
 </body>
 </html>
