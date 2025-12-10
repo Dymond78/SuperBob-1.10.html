@@ -164,10 +164,10 @@
     .send-btn:disabled { opacity: 0.6; cursor: default; box-shadow:none; }
 
     /* QUICK TOOLS SLIDER */
-    .tools-toggle {
-      position: absolute;
-      right: 16px;
-      bottom: 118px;
+   .tools-toggle {
+  position: absolute;
+  right: 16px;
+  bottom: 168px;
       width: 36px;
       height: 36px;
       border-radius: 999px;
@@ -188,7 +188,7 @@
     .tools-panel {
       position: absolute;
       right: 60px;
-      bottom: 110px;
+      bottom: 160px;
       padding: 10px;
       border-radius: 14px;
       background: rgba(15,23,42,0.98);
@@ -510,17 +510,17 @@
         let reply = "";
         const lower = msg.toLowerCase();
 
-        if (isImageRequest(msg)) {
-          const cleanPrompt =
-            msg.replace(/^img:/i, "").trim() || "a tiny glowing AI core in a dark lab";
-          reply =
-            "Alright, here’s the image vibe I’d spin from that:\n\n" +
-            "• Style: modern, clean, futuristic\n" +
-            "• Prompt: " + cleanPrompt + "\n\n" +
-            "(In full Vyre mode this would trigger the real image engine.)";
-
-        } else if (lower.includes("what are you") || lower.includes("what is vyre")) {
-          reply =
+        // Make replies feel more human, not stiff
+      function humanize(text) {
+  const variations = [
+    text,
+    text.replace("so I can", "so I actually can"),
+    text.replace("Fill me in", "Give me a bit more detail"),
+    text.replace("What’s the real situation?", "Okay, what’s really going on?")
+  ];
+  return variations[Math.floor(Math.random() * variations.length)];
+}
+reply =
             "I’m Bob – a small undercover piece of Vyre they let slip out early.\n" +
             "Right now I just live in this page on your device, testing how I talk and think. " +
             "Vyre is the bigger version of me that isn’t public yet.";
@@ -606,3 +606,5 @@
   </script>
 </body>
 </html>
+
+        
