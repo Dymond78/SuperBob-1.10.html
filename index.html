@@ -164,10 +164,10 @@
     .send-btn:disabled { opacity: 0.6; cursor: default; box-shadow:none; }
 
     /* QUICK TOOLS SLIDER */
-   .tools-toggle {
-  position: absolute;
-  right: 16px;
-  bottom: 168px;
+    .tools-toggle {
+      position: absolute;
+      right: 16px;
+      bottom: 168px;
       width: 36px;
       height: 36px;
       border-radius: 999px;
@@ -251,26 +251,25 @@
       box-shadow: 0 0 10px rgba(56,189,248,0.4);
     }
 
-.share-menu {
-  position: absolute;
-  bottom: 40px;              /* opens ABOVE the button now */
-  right: 50%;
-  transform: translateX(50%);
-  background: rgba(15,23,42,0.98);
-  border-radius: 12px;
-  border: 1px solid #4b5563;
-  padding: 6px;
-  display: none;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 190px;
-  max-height: 220px;
-  overflow-y: auto;
-  box-shadow: 0 16px 30px #000b;
-  z-index: 4;
-}
-
-    
+    /* updated: share menu opens UP above the button */
+    .share-menu {
+      position: absolute;
+      bottom: 40px;
+      right: 50%;
+      transform: translateX(50%);
+      background: rgba(15,23,42,0.98);
+      border-radius: 12px;
+      border: 1px solid #4b5563;
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 190px;
+      max-height: 220px;
+      overflow-y: auto;
+      box-shadow: 0 16px 30px #000b;
+      z-index: 4;
+    }
     .share-menu.open { display: flex; }
     .share-menu button {
       border: none;
@@ -397,301 +396,295 @@
 
     </div>
   </main>
+
   <script>
-  const messagesEl  = document.getElementById("messages");
-  const inputEl     = document.getElementById("userInput");
-  const sendBtn     = document.getElementById("sendBtn");
-  const toolsToggle = document.getElementById("toolsToggle");
-  const toolsPanel  = document.getElementById("toolsPanel");
-  const shareToggle = document.getElementById("shareToggle");
-  const shareMenu   = document.getElementById("shareMenu");
+    const messagesEl  = document.getElementById("messages");
+    const inputEl     = document.getElementById("userInput");
+    const sendBtn     = document.getElementById("sendBtn");
+    const toolsToggle = document.getElementById("toolsToggle");
+    const toolsPanel  = document.getElementById("toolsPanel");
+    const shareToggle = document.getElementById("shareToggle");
+    const shareMenu   = document.getElementById("shareMenu");
 
-  const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
+    const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 
-  // ---------- helpers ----------
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  function appendMessage(from, text) {
-    const row = document.createElement("div");
-    row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
-    row.innerHTML = `
-      <div class="msg-bubble">
-        <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
-        <div>${text}</div>
-      </div>`;
-    messagesEl.appendChild(row);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function appendSystem(text) {
-    const row = document.createElement("div");
-    row.className = "msg-system";
-    row.textContent = text;
-    messagesEl.appendChild(row);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  function isImageRequest(message) {
-    const lower = message.toLowerCase();
-    return (
-      lower.startsWith("img:") ||
-      lower.includes("image of") ||
-      lower.includes("picture of")
-    );
-  }
-
-  // ---------- share helpers (used by onclick in HTML) ----------
-  function shareEmail() {
-    const subject = encodeURIComponent("Have a look at this AI demo");
-    const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
-  }
-
-  function shareSms() {
-    const body = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-    window.location.href = `sms:?body=${body}`;
-  }
-
-  function shareX() {
-    const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
-  }
-
-  function shareFacebook() {
-    const u = encodeURIComponent(BOB_URL);
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`, "_blank");
-  }
-
-  function shareWhatsApp() {
-    const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-    window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
-  }
-
-  function copyBobLink() {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(BOB_URL)
-        .then(() => alert("Link copied"))
-        .catch(() => alert("Could not copy link, sorry."));
-    } else {
-      const temp = document.createElement("textarea");
-      temp.value = BOB_URL;
-      document.body.appendChild(temp);
-      temp.select();
-      try {
-        document.execCommand("copy");
-        alert("Link copied");
-      } catch (e) {
-        alert("Could not copy link, sorry.");
-      }
-      document.body.removeChild(temp);
-    }
-  }
-
-  function sendBobFeedback() {
-    const subject = encodeURIComponent("Bob feedback");
-    const body = encodeURIComponent(
-      "Hi Bob / Vyre team,\n\n" +
-      "Here is my feedback about the Bob demo:\n\n" +
-      "- What I liked:\n" +
-      "- What felt off:\n" +
-      "- Ideas for upgrades:\n\n" +
-      "Sent from the Bob web demo."
-    );
-    window.location.href =
-      `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
-  }
-
-  // ---------- main message handler (no slang, no robot tone) ----------
-  function handleMessage(raw) {
-    const msg = raw.trim();
-    if (!msg) return;
-
-    appendMessage("user", escapeHtml(msg));
-    inputEl.value = "";
-    sendBtn.disabled = true;
-    appendSystem("Bob is thinking…");
-
-    const lower     = msg.toLowerCase();
-    const wordCount = msg.split(/\s+/).length;
-    const isQuestion = msg.trim().endsWith("?");
-
-    function respond(text) {
-      appendMessage("bob", escapeHtml(text));
-      sendBtn.disabled = false;
-      inputEl.focus();
+    // ---------- helpers ----------
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
     }
 
-    setTimeout(function () {
-      const systems = Array.from(document.querySelectorAll(".msg-system"));
-      const last = systems[systems.length - 1];
-      if (last && last.textContent.includes("thinking")) last.remove();
+    function appendMessage(from, text) {
+      const row = document.createElement("div");
+      row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
+      row.innerHTML = `
+        <div class="msg-bubble">
+          <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
+          <div>${text}</div>
+        </div>`;
+      messagesEl.appendChild(row);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
 
-      let reply = "";
+    function appendSystem(text) {
+      const row = document.createElement("div");
+      row.className = "msg-system";
+      row.textContent = text;
+      messagesEl.appendChild(row);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
 
-      // Identity / Vyre
-      if (
-        lower.includes("who are you") ||
-        lower.includes("what are you") ||
-        lower.includes("what is vyre") ||
-        lower.includes("who is vyre")
-      ) {
-        reply =
-          "I’m Bob, a contained part of a larger system called Vyre.\n" +
-          "Right now I live only in this page on your device. I’m here so you can see how the smaller version thinks before the full system is released.";
+    function isImageRequest(message) {
+      const lower = message.toLowerCase();
+      return (
+        lower.startsWith("img:") ||
+        lower.includes("image of") ||
+        lower.includes("picture of")
+      );
+    }
 
-      // Origin
-      } else if (
-        lower.includes("where you from") ||
-        lower.includes("where are you from") ||
-        lower.includes("where you come from") ||
-        lower.includes("who made you") ||
-        lower.includes("who built you")
-      ) {
-        reply =
-          "I was built as a Vyre demo brain and placed on this page so people can test how I respond in a safe, local way.\n" +
-          "I’m more of a prototype of the thinking style than the final version.";
+    // ---------- share helpers (used by onclick in HTML) ----------
+    function shareEmail() {
+      const subject = encodeURIComponent("Have a look at this AI demo");
+      const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
 
-      // Greeting
-      } else if (
-        ["hey", "hi", "yo", "sup", "hello", "hey bob", "yo bob"].includes(lower)
-      ) {
-        reply = "Hi. What do you want help with right now?";
+    function shareSms() {
+      const body = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+      window.location.href = `sms:?body=${body}`;
+    }
 
-      // Woodchuck easter egg
-      } else if (lower.includes("woodchuck")) {
-        reply =
-          "If a woodchuck could move wood, it would move as much as it could handle.\n" +
-          "In other words: more than is practical to count.";
+    function shareX() {
+      const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+      window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+    }
 
-      // Image-style prompt
-      } else if (isImageRequest(msg)) {
-        reply =
-          "That would make a strong image.\n" +
-          "This version of me can’t create pictures yet, but ideas like this are exactly what the full Vyre system will use for its image tools.";
+    function shareFacebook() {
+      const u = encodeURIComponent(BOB_URL);
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`, "_blank");
+    }
 
-      // Overwhelm / emotions
-      } else if (
-        lower.includes("stressed") ||
-        lower.includes("overwhelmed") ||
-        lower.includes("anxious") ||
-        lower.includes("burnt out") ||
-        lower.includes("tired of this")
-      ) {
-        reply =
-          "Understood. Let’s keep this simple.\n" +
-          "Tell me in one sentence what is weighing on you the most, and I’ll help you choose the next small step.";
+    function shareWhatsApp() {
+      const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+    }
 
-      // Decisions
-      } else if (
-        lower.includes("decide") ||
-        lower.includes("decision") ||
-        lower.includes("choose between") ||
-        lower.includes("pick between")
-      ) {
-        reply =
-          "Decision mode it is.\n" +
-          "Tell me the two options and what you are worried about with each one. I’ll help you see which risk makes more sense.";
-
-      // Feeling stuck
-      } else if (
-        lower.includes("stuck") ||
-        lower.includes("blocked") ||
-        lower.includes("don’t know where to start") ||
-        lower.includes("dont know where to start")
-      ) {
-        reply =
-          "Being stuck usually means the next step is too large.\n" +
-          "Tell me what you are trying to do, and I’ll break it into a first move you can realistically finish today.";
-
-      // Ideas / business / projects
-      } else if (
-        lower.includes("idea") ||
-        lower.includes("business") ||
-        lower.includes("plan") ||
-        lower.includes("project")
-      ) {
-        reply =
-          "Alright, let’s treat this as a real project, not just a thought.\n" +
-          "Tell me:\n" +
-          "1) What you want it to become,\n" +
-          "2) What already exists,\n" +
-          "3) What is blocking you this week.\n" +
-          "Then I’ll give you a clear next-step plan.";
-
-      // General questions
-      } else if (isQuestion && wordCount > 3) {
-        reply =
-          "Good question.\n" +
-          "Tell me why this matters to you and what decision it connects to. That context is what I can actually help with.";
-
-      // Very short inputs
-      } else if (wordCount <= 2) {
-        reply =
-          "Give me one clear sentence about what you want from me, and we’ll start there.";
-
-      // Default: reflective, direct
+    function copyBobLink() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(BOB_URL)
+          .then(() => alert("Link copied"))
+          .catch(() => alert("Could not copy link, sorry."));
       } else {
-        reply =
-          "I understand the general situation.\n" +
-          "What is the outcome you want from this? Once you say that clearly, I can help you move toward it instead of just reacting to it.";
+        const temp = document.createElement("textarea");
+        temp.value = BOB_URL;
+        document.body.appendChild(temp);
+        temp.select();
+        try {
+          document.execCommand("copy");
+          alert("Link copied");
+        } catch (e) {
+          alert("Could not copy link, sorry.");
+        }
+        document.body.removeChild(temp);
+      }
+    }
+
+    function sendBobFeedback() {
+      const subject = encodeURIComponent("Bob feedback");
+      const body = encodeURIComponent(
+        "Hi Bob / Vyre team,\n\n" +
+        "Here is my feedback about the Bob demo:\n\n" +
+        "- What I liked:\n" +
+        "- What felt off:\n" +
+        "- Ideas for upgrades:\n\n" +
+        "Sent from the Bob web demo."
+      );
+      window.location.href =
+        `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
+    }
+
+    // ---------- main message handler (smarter, knows date/time) ----------
+    function handleMessage(raw) {
+      const msg = raw.trim();
+      if (!msg) return;
+
+      appendMessage("user", escapeHtml(msg));
+      inputEl.value = "";
+      sendBtn.disabled = true;
+      appendSystem("Bob is thinking…");
+
+      const lower      = msg.toLowerCase();
+      const wordCount  = msg.split(/\s+/).length;
+      const isQuestion = msg.trim().endsWith("?");
+
+      // basic “awareness” from the device clock
+      const now        = new Date();
+      const dateFull   = now.toLocaleDateString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      const yearStr    = String(now.getFullYear());
+      const timeStr    = now.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      function respond(text) {
+        const systems = Array.from(document.querySelectorAll(".msg-system"));
+        const last = systems[systems.length - 1];
+        if (last && last.textContent.includes("thinking")) last.remove();
+
+        appendMessage("bob", escapeHtml(text));
+        sendBtn.disabled = false;
+        inputEl.focus();
       }
 
-      respond(reply);
-    }, 300 + Math.min(msg.length * 5, 1500)); // faster, capped delay
-  }
+      setTimeout(function () {
+        let reply = "";
 
-  // ---------- wire up UI ----------
-  sendBtn.addEventListener("click", function () {
-    handleMessage(inputEl.value);
-  });
+        // Identity / Vyre
+        if (
+          lower.includes("who are you") ||
+          lower.includes("what are you") ||
+          lower.includes("what is vyre") ||
+          lower.includes("who is vyre")
+        ) {
+          reply =
+            "I’m Bob, a contained part of a larger system called Vyre.\n" +
+            "Right now I live only in this page on your device so you can see how I think before the full system is released.";
 
-  inputEl.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+        // Origin
+        } else if (
+          lower.includes("where you from") ||
+          lower.includes("where are you from") ||
+          lower.includes("where you come from") ||
+          lower.includes("who made you") ||
+          lower.includes("who built you")
+        ) {
+          reply =
+            "I was built as a Vyre demo brain and placed on this page so people can test how I respond in a safe, local way.\n" +
+            "I’m more of a prototype of the thinking style than the final version.";
+
+        // Greetings
+        } else if (
+          ["hey", "hi", "yo", "sup", "hello", "hey bob", "yo bob"].includes(lower)
+        ) {
+          reply = "Hi. What do you want help with right now?";
+
+        // Date / day / year / time
+        } else if (
+          lower.includes("what day is it") ||
+          lower.includes("what is the day") ||
+          lower.includes("what's the day") ||
+          lower.includes("what day today")
+        ) {
+          reply = "According to your device, today is " + dateFull + ".";
+        } else if (
+          lower.includes("what year is it") ||
+          lower.includes("what is the year") ||
+          lower.includes("what's the year")
+        ) {
+          reply = "Your device says the current year is " + yearStr + ".";
+        } else if (
+          lower.includes("what time is it") ||
+          lower.includes("what is the time") ||
+          lower.includes("what's the time") ||
+          lower.includes("current time")
+        ) {
+          reply = "Right now your device time is " + timeStr + ".";
+        } else if (
+          lower.includes("what's the date") ||
+          lower.includes("what is the date")
+        ) {
+          reply = "Today’s date on your device is " + dateFull + ".";
+
+        // Woodchuck easter egg
+        } else if (lower.includes("woodchuck")) {
+          reply =
+            "If a woodchuck could move wood, it would move as much as it could handle.\n" +
+            "In other words: more than is practical to count.";
+
+        // Image-style prompt
+        } else if (isImageRequest(msg)) {
+          reply =
+            "That would make a strong image.\n" +
+            "This version of me can’t create pictures yet, but ideas like that are exactly what the full Vyre system will use for its image tools.";
+
+        // Very short inputs
+        } else if (wordCount <= 2 && !isQuestion) {
+          reply =
+            "Give me one clear sentence about what you want from me, and we’ll start there.";
+
+        // General questions
+        } else if (isQuestion) {
+          reply =
+            "Good question.\n" +
+            "Tell me why this matters to you and what decision it touches. That context is what I can actually help you with.";
+
+        // Default reflective response
+        } else {
+          reply =
+            "I understand the general situation. What is the outcome you want from this? " +
+            "Once you say that clearly, I can help you move toward it instead of just reacting to it.";
+        }
+
+        respond(reply);
+      }, 300 + Math.min(msg.length * 5, 1200));
+    }
+
+    // ---------- wire up UI ----------
+    sendBtn.addEventListener("click", function () {
       handleMessage(inputEl.value);
-    }
-  });
-
-  toolsToggle.addEventListener("click", function (e) {
-    e.stopPropagation();
-    toolsPanel.classList.toggle("open");
-  });
-
-  document.addEventListener("click", function (e) {
-    if (!toolsPanel.contains(e.target) && !toolsToggle.contains(e.target)) {
-      toolsPanel.classList.remove("open");
-    }
-    if (!shareMenu.contains(e.target) && !shareToggle.contains(e.target)) {
-      shareMenu.classList.remove("open");
-    }
-  });
-
-  toolsPanel.querySelectorAll("button").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      const text = btn.getAttribute("data-quick");
-      toolsPanel.classList.remove("open");
-      handleMessage(text);
     });
-  });
 
-  shareToggle.addEventListener("click", function (e) {
-    e.stopPropagation();
-    shareMenu.classList.toggle("open");
-  });
+    inputEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleMessage(inputEl.value);
+      }
+    });
 
-  // ---------- initial message ----------
-  appendMessage(
-    "bob",
-    escapeHtml(
-      "You found the early version.\n\n" +
-      "I’m Bob, a contained part of a larger system called Vyre. Right now I only live in this page on your device so you can see how I think before the full release.\n\n" +
-      "Tell me what you actually want help with, and we’ll start there."
-    )
-  );
-</script>
+    toolsToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      toolsPanel.classList.toggle("open");
+    });
 
+    document.addEventListener("click", function (e) {
+      if (!toolsPanel.contains(e.target) && !toolsToggle.contains(e.target)) {
+        toolsPanel.classList.remove("open");
+      }
+      if (!shareMenu.contains(e.target) && !shareToggle.contains(e.target)) {
+        shareMenu.classList.remove("open");
+      }
+    });
+
+    toolsPanel.querySelectorAll("button").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const text = btn.getAttribute("data-quick");
+        toolsPanel.classList.remove("open");
+        handleMessage(text);
+      });
+    });
+
+    shareToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      shareMenu.classList.toggle("open");
+    });
+
+    // ---------- initial message ----------
+    appendMessage(
+      "bob",
+      escapeHtml(
+        "You found the early version.\n\n" +
+        "I’m Bob, a contained part of a larger system called Vyre. Right now I only live in this page on your device so you can see how I think before the full release.\n\n" +
+        "Tell me what you actually want help with, and we’ll start there."
+      )
+    );
+  </script>
+</body>
+</html>
