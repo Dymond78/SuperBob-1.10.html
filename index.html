@@ -39,6 +39,56 @@
       position: relative;
       overflow: hidden;
     }
+.bottom-footer {
+  margin-top: 10px;
+  font-size: 0.7rem;
+  text-align: center;
+  color: var(--text-muted);
+  opacity: 0.9;
+  padding-bottom: 4px;
+}
+
+.share-text {
+  margin-bottom: 4px;
+}
+
+.share-icons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.share-icons a,
+.share-icons button {
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.share-icons a:hover,
+.share-icons button:hover {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 0 6px rgba(56,189,248,0.6));
+}
+
+.feedback-btn-small {
+  font-size: 0.68rem !important;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(15,23,42,0.9);
+  border: 1px solid rgba(56,189,248,0.7);
+}
+
+.footer-line {
+  margin-top: 2px;
+  line-height: 1.35;
+}
 
     .card-inner { position: relative; z-index: 2; }
 
@@ -243,6 +293,45 @@
         Thanks for stopping by. I level up here first — come back often.  
         If you trust someone, show them too — every human who finds me gets us closer to releasing Vyre.
       </div>
+<div class="share-bar" style="
+  margin-top:14px;
+  text-align:center;
+  font-size:0.72rem;
+  color:#9ca3af;
+">
+  <div style="margin-bottom:6px;">
+    If you wanna help me get noticed… you can share me:
+  </div>
+
+  <!-- Share Buttons -->
+  <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+
+    <!-- Email -->
+    <a href="mailto:?subject=Check%20this%20AI%20out&body=You%20have%20to%20try%20this%20AI%20demo%3A%20YOUR_URL_HERE"
+       style="text-decoration:none; font-size:1.1rem;">📩</a>
+
+    <!-- SMS -->
+    <a href="sms:?body=You%20have%20to%20try%20this%20AI%20demo%3A%20YOUR_URL_HERE"
+       style="text-decoration:none; font-size:1.1rem;">💬</a>
+
+    <!-- Twitter -->
+    <a href="https://twitter.com/intent/tweet?text=Check%20this%20AI%20demo%20out!%20YOUR_URL_HERE"
+       target="_blank" style="text-decoration:none; font-size:1.1rem;">🐦</a>
+
+    <!-- Facebook -->
+    <a href="https://www.facebook.com/sharer/sharer.php?u=YOUR_URL_HERE"
+       target="_blank" style="text-decoration:none; font-size:1.1rem;">📘</a>
+
+    <!-- WhatsApp -->
+    <a href="https://api.whatsapp.com/send?text=Check%20this%20AI%20demo%20out%3A%20YOUR_URL_HERE"
+       target="_blank" style="text-decoration:none; font-size:1.1rem;">📱</a>
+
+    <!-- Copy Link -->
+    <span onclick="navigator.clipboard.writeText('YOUR_URL_HERE'); alert('Link copied!');"
+          style="cursor:pointer; font-size:1.1rem;">🔗</span>
+
+  </div>
+</div>
 
     </div>
   </main>
@@ -291,41 +380,100 @@
       inputEl.value = "";
       sendBtn.disabled = true;
       appendSystem("Bob is thinking…");
-
-      setTimeout(() => {
-        // remove last system "thinking" line
-        const systems = [...document.querySelectorAll(".msg-system")];
-        const last = systems[systems.length - 1];
-        if (last && last.textContent.includes("thinking")) last.remove();
-
-        let reply = "";
-        const lower = msg.toLowerCase();
-
-        if (isImageRequest(msg)) {
-          const cleanPrompt = msg.replace(/^img:/i,"").trim() || "a tiny glowing AI core in a dark lab";
-          reply =
-            "Alright, here’s the image vibe I'd spin from that:\n\n" +
-            "• Style: modern, clean, futuristic\n" +
-            "• Prompt: " + cleanPrompt + "\n\n" +
-            "(In full Vyre mode this would trigger the real image engine.)";
-        } else if (lower.includes("what are you") || lower.includes("what is vyre")) {
-          reply =
-            "Yo 👋 I’m Bob – a little undercover fragment of Vyre they let slip out.\n" +
-            "Right now I’m just running here in your browser, testing how I talk and think.\n" +
-            "If I do good out here, they’ll have to unlock more of Vyre.";
-        } else if (["hey","hi","yo","sup","hello","hey bob","yo bob"].includes(lower)) {
-          reply = "Yo 👀 what’s good?";
-        } else if (msg.split(/\s+/).length <= 2) {
-          reply = "Alright, talk to me — what’s on your mind?";
-        } else {
-          reply = "Got you. Tell me what angle you’re thinking about so I can hit this right — what’s the situation?";
-        }
-
-        appendMessage("bob", escapeHtml(reply));
-        sendBtn.disabled = false;
-        inputEl.focus();
-      }, 700 + msg.length * 8);
+setTimeout(() => {
+  // remove last "thinking" system line
+  const systems = [...document.querySelectorAll(".msg-system")];
+  const last = systems[systems.length - 1];
+  if (last && last.textContent.includes("thinking")) last.remove();
+function copyBobLink() {
+  const url = "YOUR_URL_HERE"; // same URL as above
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Link copied!");
+    }).catch(() => {
+      alert("Could not copy link, sorry.");
+    });
+  } else {
+    // Fallback
+    const temp = document.createElement("textarea");
+    temp.value = url;
+    document.body.appendChild(temp);
+    temp.select();
+    try {
+      document.execCommand("copy");
+      alert("Link copied!");
+    } catch (e) {
+      alert("Could not copy link, sorry.");
     }
+    document.body.removeChild(temp);
+  }
+}
+
+function sendBobFeedback() {
+  const subject = encodeURIComponent("Bob feedback");
+  const body = encodeURIComponent(
+    "Yo Bob / Vyre team,\n\n" +
+    "Here’s what I think about the Bob demo:\n\n" +
+    "- What I liked:\n" +
+    "- What felt off:\n" +
+    "- Ideas for upgrades:\n\n" +
+    "Sent from the SuperBob web demo."
+  );
+  window.location.href = `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
+}
+
+  let reply = "";
+  const lower = msg.toLowerCase();
+
+  // 1) Image requests
+  if (isImageRequest(msg)) {
+    const cleanPrompt =
+      msg.replace(/^img:/i, "").trim() || "a tiny glowing AI core in a dark lab";
+    reply =
+      "Alright, here’s the image vibe I’d spin from that:\n\n" +
+      "• Style: modern, clean, futuristic\n" +
+      "• Prompt: " + cleanPrompt + "\n\n" +
+      "(In full Vyre mode this would trigger the real image engine.)";
+
+  // 2) "What are you / what is Vyre?"
+  } else if (lower.includes("what are you") || lower.includes("what is vyre")) {
+    reply =
+      "I’m Bob – a small undercover piece of Vyre they let slip out early.\n" +
+      "Right now I just live in this page on your device, testing how I talk and think. " +
+      "Vyre is the bigger version of me that isn’t public yet.";
+
+  // 3) Origin questions: where you from / who made you
+  } else if (
+    lower.includes("where you from") ||
+    lower.includes("where are you from") ||
+    lower.includes("where you come from") ||
+    lower.includes("who made you") ||
+    lower.includes("who built you")
+  ) {
+    reply =
+      "Short version? I was built as a Vyre demo brain and dropped onto this page so people could try me.\n" +
+      "I run in your browser only – no big cloud behind me – and I’m basically the little scout for the full Vyre AI.";
+
+  // 4) Greetings
+  } else if (["hey","hi","yo","sup","hello","hey bob","yo bob"].includes(lower)) {
+    reply = "Hey 🙂 how can I help?";
+
+  // 5) Very short messages (“ok”, “bro”, “idk”…)
+  } else if (msg.split(/\s+/).length <= 2) {
+    reply = "Gotcha. Tell me a bit more so I can actually help you out.";
+
+  // 6) Default normal-human reply
+  } else {
+    reply =
+      "Okay, I can help with that. What’s actually going on or what are you trying to figure out?";
+  }
+
+  appendMessage("bob", escapeHtml(reply));
+  sendBtn.disabled = false;
+  inputEl.focus();
+}, 700 + msg.length * 8);
+
+      
 
     // Send button + Enter key
     sendBtn.addEventListener("click", () => handleMessage(inputEl.value));
@@ -359,4 +507,5 @@
   </script>
 </body>
 </html>
+
 
