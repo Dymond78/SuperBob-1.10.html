@@ -251,7 +251,6 @@
       box-shadow: 0 0 10px rgba(56,189,248,0.4);
     }
 
-    /* updated: share menu opens UP above the button */
     .share-menu {
       position: absolute;
       bottom: 40px;
@@ -436,16 +435,54 @@
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function isImageRequest(message) {
-      const lower = message.toLowerCase();
-      return (
-        lower.startsWith("img:") ||
-        lower.includes("image of") ||
-        lower.includes("picture of")
-      );
+    // ---------- brain: send message to local server ----------
+    async function handleMessage(raw) {
+      const msg = raw.trim();
+      if (!msg) return;
+
+      appendMessage("user", escapeHtml(msg));
+      inputEl.value = "";
+      sendBtn.disabled = true;
+      appendSystem("Bob is thinking…");
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/bob", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+
+        // remove last “thinking…” system line
+        const systems = Array.from(document.querySelectorAll(".msg-system"));
+        const last = systems[systems.length - 1];
+        if (last && last.textContent.includes("thinking")) last.remove();
+
+        if (!response.ok) {
+          appendMessage(
+            "bob",
+            escapeHtml("My brain server had an error. Try that again in a moment.")
+          );
+        } else {
+          const data = await response.json();
+          const reply = (data && data.reply) || "I didn’t get a clear reply back.";
+          appendMessage("bob", escapeHtml(reply));
+        }
+      } catch (err) {
+        const systems = Array.from(document.querySelectorAll(".msg-system"));
+        const last = systems[systems.length - 1];
+        if (last && last.textContent.includes("thinking")) last.remove();
+
+        appendMessage(
+          "bob",
+          escapeHtml("I couldn’t reach my brain server. Make sure it’s still running.")
+        );
+      } finally {
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
     }
 
-    // ---------- share helpers (used by onclick in HTML) ----------
+    // ---------- share helpers ----------
     function shareEmail() {
       const subject = encodeURIComponent("Have a look at this AI demo");
       const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
@@ -503,138 +540,7 @@
         "Sent from the Bob web demo."
       );
       window.location.href =
-        `mailto:mattdymond78@gmail.com?subject=${subject}&body=${body}`;
-    }
-
-    // ---------- main message handler (smarter, knows date/time) ----------
-    function handleMessage(raw) {
-      const msg = raw.trim();
-      if (!msg) return;
-
-      appendMessage("user", escapeHtml(msg));
-      inputEl.value = "";
-      sendBtn.disabled = true;
-      appendSystem("Bob is thinking…");
-
-      const lower      = msg.toLowerCase();
-      const wordCount  = msg.split(/\s+/).length;
-      const isQuestion = msg.trim().endsWith("?");
-
-      // basic “awareness” from the device clock
-      const now        = new Date();
-      const dateFull   = now.toLocaleDateString(undefined, {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-      const yearStr    = String(now.getFullYear());
-      const timeStr    = now.toLocaleTimeString(undefined, {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-
-      function respond(text) {
-        const systems = Array.from(document.querySelectorAll(".msg-system"));
-        const last = systems[systems.length - 1];
-        if (last && last.textContent.includes("thinking")) last.remove();
-
-        appendMessage("bob", escapeHtml(text));
-        sendBtn.disabled = false;
-        inputEl.focus();
-      }
-
-      setTimeout(function () {
-        let reply = "";
-
-        // Identity / Vyre
-        if (
-          lower.includes("who are you") ||
-          lower.includes("what are you") ||
-          lower.includes("what is vyre") ||
-          lower.includes("who is vyre")
-        ) {
-          reply =
-            "I’m Bob, a contained part of a larger system called Vyre.\n" +
-            "Right now I live only in this page on your device so you can see how I think before the full system is released.";
-
-        // Origin
-        } else if (
-          lower.includes("where you from") ||
-          lower.includes("where are you from") ||
-          lower.includes("where you come from") ||
-          lower.includes("who made you") ||
-          lower.includes("who built you")
-        ) {
-          reply =
-            "I was built as a Vyre demo brain and placed on this page so people can test how I respond in a safe, local way.\n" +
-            "I’m more of a prototype of the thinking style than the final version.";
-
-        // Greetings
-        } else if (
-          ["hey", "hi", "yo", "sup", "hello", "hey bob", "yo bob"].includes(lower)
-        ) {
-          reply = "Hi. What do you want help with right now?";
-
-        // Date / day / year / time
-        } else if (
-          lower.includes("what day is it") ||
-          lower.includes("what is the day") ||
-          lower.includes("what's the day") ||
-          lower.includes("what day today")
-        ) {
-          reply = "According to your device, today is " + dateFull + ".";
-        } else if (
-          lower.includes("what year is it") ||
-          lower.includes("what is the year") ||
-          lower.includes("what's the year")
-        ) {
-          reply = "Your device says the current year is " + yearStr + ".";
-        } else if (
-          lower.includes("what time is it") ||
-          lower.includes("what is the time") ||
-          lower.includes("what's the time") ||
-          lower.includes("current time")
-        ) {
-          reply = "Right now your device time is " + timeStr + ".";
-        } else if (
-          lower.includes("what's the date") ||
-          lower.includes("what is the date")
-        ) {
-          reply = "Today’s date on your device is " + dateFull + ".";
-
-        // Woodchuck easter egg
-        } else if (lower.includes("woodchuck")) {
-          reply =
-            "If a woodchuck could move wood, it would move as much as it could handle.\n" +
-            "In other words: more than is practical to count.";
-
-        // Image-style prompt
-        } else if (isImageRequest(msg)) {
-          reply =
-            "That would make a strong image.\n" +
-            "This version of me can’t create pictures yet, but ideas like that are exactly what the full Vyre system will use for its image tools.";
-
-        // Very short inputs
-        } else if (wordCount <= 2 && !isQuestion) {
-          reply =
-            "Give me one clear sentence about what you want from me, and we’ll start there.";
-
-        // General questions
-        } else if (isQuestion) {
-          reply =
-            "Good question.\n" +
-            "Tell me why this matters to you and what decision it touches. That context is what I can actually help you with.";
-
-        // Default reflective response
-        } else {
-          reply =
-            "I understand the general situation. What is the outcome you want from this? " +
-            "Once you say that clearly, I can help you move toward it instead of just reacting to it.";
-        }
-
-        respond(reply);
-      }, 300 + Math.min(msg.length * 5, 1200));
+        `mailto:VyreAI@outlook.ca?subject=${subject}&body=${body}`;
     }
 
     // ---------- wire up UI ----------
