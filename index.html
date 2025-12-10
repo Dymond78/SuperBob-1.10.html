@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SuperBob – Vyre Demo Brain v1.1</title>
+  <title>SuperBob – Vyre Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
@@ -15,7 +15,6 @@
       --bubble-user: #0f172a;
       --bubble-bob: #020617;
     }
-
     * { box-sizing: border-box; }
 
     body {
@@ -35,30 +34,15 @@
       width: 94%;
       background: var(--bg-card);
       border-radius: 22px;
-      padding: 18px 18px 14px;
-      box-shadow:
-        0 18px 40px rgba(0, 0, 0, 0.6),
-        0 0 0 1px rgba(148, 163, 184, 0.3);
+      padding: 18px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
       position: relative;
       overflow: hidden;
     }
 
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.17), transparent 55%),
-        radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.16), transparent 55%);
-      opacity: 0.9;
-      pointer-events: none;
-    }
+    .card-inner { position: relative; z-index: 2; }
 
-    .card-inner {
-      position: relative;
-      z-index: 1;
-    }
-
+    /* ---------- HEADER ----------- */
     .header {
       display: flex;
       align-items: center;
@@ -67,665 +51,294 @@
     }
 
     .bob-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #fbbf24, #f97316);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #111827;
-      font-size: 1.25rem;
       font-weight: 800;
-      box-shadow:
-        0 0 0 2px rgba(15, 23, 42, 0.88),
-        0 0 0 4px rgba(56, 189, 248, 0.55),
-        0 18px 30px rgba(0, 0, 0, 0.75);
-      position: relative;
+      color: #111;
+      font-size: 1.25rem;
+      box-shadow: 0 0 0 2px #0008, 0 0 15px #38bdf8aa;
     }
 
-    .bob-avatar::after {
-      content: "";
-      position: absolute;
-      inset: 5px;
-      border-radius: inherit;
-      background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.18), transparent 60%);
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    .header-text {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-    }
+    .title-row { display: flex; align-items: center; justify-content: space-between; }
 
     .title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      font-size: 1.25rem;
+      font-weight: 700;
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .badge {
-      font-size: 0.68rem;
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(56, 189, 248, 0.5);
-      background: linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.2));
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
     }
 
     .subtitle {
+      color: var(--text-muted);
+      font-size: 0.82rem;
       margin-top: 2px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
     }
 
-    .status-bar {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      margin: 6px 0 8px;
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      gap: 8px;
-    }
-
-    .status-pill {
-      padding: 2px 9px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.94);
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
-    }
-
+    /* ---------- CHAT ----------- */
     .chat {
-      border-radius: 14px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      padding: 10px 8px 6px;
+      border-radius: 16px;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid #2a3347;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       max-height: 360px;
-      min-height: 220px;
+      min-height: 230px;
       overflow: hidden;
     }
 
     .messages {
       flex: 1;
       overflow-y: auto;
-      padding-right: 4px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      scroll-behavior: smooth;
+      gap: 8px;
+      padding-right: 4px;
     }
 
-    .msg-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-      font-size: 0.8rem;
-    }
-
-    .msg-row.user {
-      justify-content: flex-end;
-    }
+    .msg-row { display: flex; font-size: 0.82rem; }
+    .msg-row.user { justify-content: flex-end; }
 
     .msg-bubble {
       max-width: 80%;
-      padding: 7px 9px;
+      padding: 8px 10px;
       border-radius: 12px;
-      line-height: 1.3;
+      line-height: 1.32;
     }
-
-    .msg-bob .msg-bubble {
-      background: var(--bubble-bob);
-      border: 1px solid rgba(56, 189, 248, 0.45);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
-    }
-
     .msg-user .msg-bubble {
       background: var(--bubble-user);
-      border: 1px solid rgba(148, 163, 184, 0.5);
+      border: 1px solid #42526a;
+    }
+    .msg-bob .msg-bubble {
+      background: var(--bubble-bob);
+      border: 1px solid #38bdf866;
+      box-shadow: 0 4px 12px #000b;
     }
 
     .msg-label {
-      font-size: 0.66rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     .msg-system {
       text-align: center;
       font-size: 0.7rem;
       color: var(--text-muted);
-      margin: 4px 0;
     }
 
-    .msg-system span {
-      background: rgba(15, 23, 42, 0.92);
-      border-radius: 999px;
-      padding: 2px 10px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-    }
-
-    .footer {
-      margin-top: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    /* ---------- QUICK BUTTONS ----------- */
     .quick-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-    }
-
-    .quick-btn {
-      border: none;
-      font-size: 0.68rem;
-      padding: 4px 8px;
-      border-radius: 999px;
-      cursor: pointer;
-      background: rgba(15, 23, 42, 0.96);
-      color: var(--text-muted);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .quick-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .input-row {
-      display: flex;
-      align-items: center;
       gap: 6px;
+      margin-bottom: 4px;
     }
+    .quick-btn {
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      border-radius: 999px;
+      background: rgba(30,41,59,0.9);
+      border: 1px solid #4b5563;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .quick-btn:hover { color: var(--accent); border-color: var(--accent); }
 
+    /* ---------- INPUT ----------- */
+    .input-row { display: flex; gap: 6px; }
     .input-row input {
       flex: 1;
-      padding: 7px 9px;
+      padding: 8px 11px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid #4b5563;
+      background: rgba(15,23,42,0.96);
       color: var(--text-main);
-      font-size: 0.8rem;
-      outline: none;
-    }
-
-    .input-row input::placeholder {
-      color: var(--text-muted);
+      font-size: 0.82rem;
     }
 
     .send-btn {
+      padding: 7px 12px;
       border-radius: 999px;
+      background: linear-gradient(135deg,#38bdf8,#0ea5e9);
       border: none;
-      padding: 7px 10px;
-      background: radial-gradient(circle at 30% 0%, #38bdf8, #0ea5e9);
-      color: #0b1220;
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow:
-        0 0 0 1px rgba(15, 23, 42, 0.8),
-        0 10px 18px rgba(8, 47, 73, 0.9);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      box-shadow: 0 8px 14px #0009;
     }
 
-    .send-btn:active {
-      transform: translateY(1px);
-      box-shadow:
-        0 0 0 1px rgba(15, 23, 42, 0.9),
-        0 5px 10px rgba(8, 47, 73, 0.7);
-    }
-
-    .send-btn:disabled {
-      opacity: 0.6;
-      cursor: default;
-      box-shadow: none;
-    }
-
-    .fine-print {
+    /* ---------- FOOTER FIXED LINE ----------- */
+    .bottom-footer {
       margin-top: 6px;
-      font-size: 0.66rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: center;
-      text-align: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      opacity: 0.9;
-    }
-
-    .fine-note {
-      font-size: 0.66rem;
-      color: var(--text-muted);
-      max-width: 100%;
-    }
-
-    .typing-indicator {
       font-size: 0.7rem;
+      text-align: center;
       color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-top: 2px;
+      opacity: 0.85;
+      padding-bottom: 3px;
     }
 
-    .typing-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 999px;
-      background: rgba(148, 163, 184, 0.9);
-      animation: pulse 1s infinite ease-in-out;
-    }
-
-    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
-
-    @keyframes pulse {
-      0%, 100% { transform: translateY(0); opacity: 0.4; }
-      50% { transform: translateY(-2px); opacity: 1; }
-    }
-
-    @media (max-width: 480px) {
-      .card {
-        border-radius: 0;
-        max-width: 100%;
-        min-height: 100vh;
-      }
-    }
   </style>
 </head>
 <body>
+
   <main class="card">
     <div class="card-inner">
+
+      <!-- CLEAN NEW HEADER -->
       <header class="header">
-        <div class="bob-avatar">
-          B
-        </div>
-        <div class="header-text">
+        <div class="bob-avatar">B</div>
+        <div>
           <div class="title-row">
-            <div class="title">
-              SuperBob
-              <span style="font-size:0.9rem;">⚡</span>
-            </div>
-            <div class="badge">
-              <span class="badge-dot"></span>
-              <span>Vyre Minion</span>
-            </div>
+            <div class="title">SuperBob <span style="font-size:1.15rem;">⚡🔥</span></div>
           </div>
-          <div class="subtitle">
-            Tiny undercover fragment of Vyre. I snuck out early – full form drops later. 🤫
-          </div>
+          <div class="subtitle">I slipped out early… don’t tell the other AIs. 😛</div>
         </div>
       </header>
 
-      <div class="status-bar">
-        <div class="status-pill">
-          <span class="status-dot"></span>
-          <span>Brain: <strong>v1.1 – Local Memory</strong></span>
-        </div>
-      </div>
-
+      <!-- CHAT SECTION -->
       <section class="chat">
         <div class="messages" id="messages"></div>
 
-        <footer class="footer">
-          <div class="quick-row">
-            <button class="quick-btn" data-quick="Help me think through a decision.">
-              🧠 Help with a decision
-            </button>
-            <button class="quick-btn" data-quick="Explain something so I actually understand it.">
-              📚 Explain something
-            </button>
-            <button class="quick-btn" data-quick="Give me your honest take on an idea I have.">
-              🔍 Honest opinion
-            </button>
-            <button class="quick-btn" data-quick="img: a tiny glowing AI core with a cartoon face hiding in a dark lab">
-              🎨 Try an image idea
-            </button>
-          </div>
-          <div class="input-row">
-            <input id="userInput" type="text" autocomplete="off"
-                   placeholder="Ask Bob anything... or try 'img: tiny glowing AI core in a dark lab' " />
-            <button class="send-btn" id="sendBtn">
-              Send
-              <span>➤</span>
-            </button>
-          </div>
-        </footer>
+        <div class="quick-row">
+          <button class="quick-btn" data-quick="Help me decide something.">💡 Decision help</button>
+          <button class="quick-btn" data-quick="Explain something simply.">📘 Explain</button>
+          <button class="quick-btn" data-quick="img: glowing AI orb with personality">🎨 Image idea</button>
+        </div>
+
+        <div class="input-row">
+          <input id="userInput" placeholder="Ask Bob anything… or try 'img: tiny AI core'">
+          <button id="sendBtn" class="send-btn">Send ➤</button>
+        </div>
       </section>
 
-      <div class="fine-print">
-        <span class="fine-note">
-          Thanks for stopping by. I level up here first, so come back often. If you trust someone, show them too — every human who finds me gets us closer to releasing Vyre.
-        </span>
+      <!-- ALWAYS VISIBLE FOOTER -->
+      <div class="bottom-footer">
+        Thanks for stopping by. I level up here first — come back often.  
+        And if you trust someone, show them too — every human who finds me gets us closer to releasing Vyre.
       </div>
+
     </div>
   </main>
 
   <script>
-    /**
-     * SUPERBOB WEB BRAIN v1.1
-     *
-     * - Stores per-topic "summaries" in localStorage
-     * - Remembers what was asked on this device
-     * - Simulates "extra research" by refining the summary each time
-     * - Has an image mode (text description now; real API later)
-     */
+    /* SUPERBOB BROWSER BRAIN v1.1 */
 
     const STORAGE_KEY = "vyre_superbob_brain_v1";
+    let replyCount = 0;
 
     function loadBrain() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
-          return { topics: {}, totalQuestions: 0 };
-        }
-        return JSON.parse(raw);
-      } catch (e) {
-        return { topics: {}, totalQuestions: 0 };
-      }
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {topics:{}}; }
+      catch { return {topics:{}}; }
     }
 
-    function saveBrain(brain) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(brain));
-      } catch (e) {
-        // If storage is blocked, Bob just forgets stuff silently.
-      }
+    function saveBrain(br) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(br)); }
+      catch {}
     }
 
     const brain = loadBrain();
-
-    // --- Topic helpers ---
-
-    function topicKeyFromMessage(message) {
-      const clean = message.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
-      const words = clean.split(/\s+/).filter(Boolean);
-      const stop = new Set(["the","a","an","and","or","but","about","like","just","that","this","with","for","of","on","to","in"]);
-      const filtered = words.filter(w => !stop.has(w));
-      return filtered.slice(0, 4).join("_") || "general";
-    }
-
-    function getTopicEntry(topicKey) {
-      if (!brain.topics[topicKey]) {
-        brain.topics[topicKey] = {
-          key: topicKey,
-          timesAsked: 0,
-          summary: "",
-          lastQuestion: "",
-          lastUpdated: Date.now()
-        };
-      }
-      return brain.topics[topicKey];
-    }
-
-    // --- Message UI helpers ---
-
     const messagesEl = document.getElementById("messages");
     const inputEl = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
 
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    function escapeHtml(t) {
+      return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }
 
     function appendMessage(from, text) {
       const row = document.createElement("div");
       row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
-      const label = from === "user" ? "You" : "Bob";
-      row.innerHTML = `
-        <div class="msg-bubble">
-          <div class="msg-label">${label}</div>
+      row.innerHTML =
+        `<div class="msg-bubble">
+          <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
           <div>${text}</div>
-        </div>
-      `;
+        </div>`;
       messagesEl.appendChild(row);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function appendSystem(text) {
+    function appendSystem(msg) {
       const row = document.createElement("div");
       row.className = "msg-system";
-      row.innerHTML = `<span>${text}</span>`;
+      row.innerHTML = msg;
       messagesEl.appendChild(row);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function showTyping() {
-      const row = document.createElement("div");
-      row.className = "msg-row msg-bob";
-      row.id = "typingRow";
-      row.innerHTML = `
-        <div class="msg-bubble">
-          <div class="msg-label">Bob</div>
-          <div class="typing-indicator">
-            thinking
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-          </div>
-        </div>
-      `;
-      messagesEl.appendChild(row);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-
-    function hideTyping() {
-      const row = document.getElementById("typingRow");
-      if (row && row.parentNode) row.parentNode.removeChild(row);
-    }
-
-    // --- Intent detection ---
-
-    function isImageRequest(message) {
-      const lower = message.toLowerCase();
-      if (lower.startsWith("img:")) return true;
-      if (lower.includes("draw ") || lower.includes("image of") || lower.includes("picture of")) return true;
-      return false;
-    }
-
-    function isTutorMode(message) {
-      const lower = message.toLowerCase();
-      return (
-        lower.includes("explain") ||
-        lower.includes("i don't get") ||
-        lower.includes("i dont get") ||
-        lower.includes("help me understand") ||
-        lower.includes("homework")
-      );
-    }
-
-    // --- Reply generation ---
-
-    function generateTextReply(userMessage) {
-      const topicKey = topicKeyFromMessage(userMessage);
-      const topic = getTopicEntry(topicKey);
-      topic.timesAsked += 1;
-      topic.lastQuestion = userMessage;
-      topic.lastUpdated = Date.now();
-      brain.totalQuestions += 1;
-
-      let reply = "";
-
-      if (userMessage.toLowerCase().includes("what are you") || userMessage.toLowerCase().includes("what is vyre")) {
-        reply =
-          "Yo 👋 I'm Bob. I’m kinda… not supposed to be out yet 😅 But shhhh… I snuck out.\n" +
-          "Full Vyre drops later, but you get me early. I’m a tiny fragment running in your browser, testing vibes, memory, and structure.\n" +
-          "Here I can’t do real web search or call heavy models – but I can remember what you ask me about and build little topic-brains per subject on this device.";
-      } else if (isTutorMode(userMessage)) {
-        reply =
-          "Alright, tutor mode it is. Here’s how we’ll do it:\n" +
-          "1) You tell me exactly what you don’t get – the words, the idea, the math, or the ‘why’.\n" +
-          "2) I give you a plain-English version.\n" +
-          "3) Then I drop a simple example so it clicks.\n" +
-          "4) If it’s still fuzzy, we try again even simpler.\n\n" +
-          "So start with: what’s the topic, and what part makes your brain say “nah”?";
-      } else if (topic.timesAsked > 1 && topic.summary) {
-        reply =
-          "I remember you asking about this before, so I’m not starting from zero.\n" +
-          "Last time my brain summary for this was something like:\n\n" +
-          topic.summary +
-          "\n\nSince then, I can tighten it up: tell me what part you want deeper – the basics, the real-world example, or the ‘advanced’ angle?";
+    function typing(show) {
+      if (show) {
+        appendSystem("Bob is thinking…");
       } else {
-        reply =
-          "Okay, here’s how I look at that:\n" +
-          "• First, what you literally asked.\n" +
-          "• Second, what you’re actually trying to figure out underneath it.\n" +
-          "• Third, what tradeoffs or consequences sit behind it.\n\n" +
-          "I don’t have live internet or big cloud models plugged in here, so I’m doing logic + pattern thinking only.\n" +
-          "If you give me a bit more context – what situation you’re really in – I can shape this way better.";
+        const systems = [...document.querySelectorAll(".msg-system")];
+        const last = systems[systems.length - 1];
+        if (last && last.textContent.includes("thinking")) last.remove();
       }
-
-      // Build/refresh a mini summary for this topic
-      const summaryBase = topic.summary || "";
-      const nowSnippet = userMessage.slice(0, 180);
-      const newSummary =
-        (summaryBase ? summaryBase + " | " : "") +
-        "User asked: \"" + nowSnippet + "\"";
-
-      // Keep it from growing forever
-      topic.summary = newSummary.slice(0, 400);
-
-      saveBrain(brain);
-      return reply;
     }
 
-    function generateImageReply(userMessage) {
-      const lower = userMessage.toLowerCase();
-      let rawPrompt = userMessage;
-
-      if (lower.startsWith("img:")) {
-        rawPrompt = userMessage.slice(4).trim();
-      }
-
-      if (!rawPrompt) {
-        return "If you want an image, try something like: img: tiny glowing AI core with a cartoon face in a dark lab.";
-      }
-
-      const safePrompt =
-        "Original, non-copyrighted image idea based on: " + rawPrompt +
-        ". No famous characters, no logos, no real-person faces.";
-
-      return (
-        "Here’s what I’d generate from that (in real Vyre world this would be an actual image):\n\n" +
-        "• Style: clean, modern, a bit futuristic\n" +
-        "• Prompt: " + safePrompt + "\n\n" +
-        "On this demo page I can’t return real images yet – but when we wire Vyre’s image engine in, this exact kind of request will spit out art."
-      );
+    function isImageRequest(m) {
+      const l = m.toLowerCase();
+      return l.startsWith("img:") || l.includes("draw ") || l.includes("image of ");
     }
 
-    function handleUserMessage(rawMessage) {
-      const message = rawMessage.trim();
-      if (!message) return;
+    function handleMessage(raw) {
+      const msg = raw.trim();
+      if (!msg) return;
 
-      appendMessage("user", escapeHtml(message));
-
+      appendMessage("user", escapeHtml(msg));
       inputEl.value = "";
-      inputEl.focus();
       sendBtn.disabled = true;
-      showTyping();
-
-      const isImg = isImageRequest(message);
-      const delay = Math.min(2000, 650 + message.length * 5);
+      typing(true);
 
       setTimeout(() => {
-        hideTyping();
-        let reply;
-        if (isImg) {
-          reply = generateImageReply(message);
+        typing(false);
+
+        let reply = "";
+
+        if (isImageRequest(msg)) {
+          reply =
+            "Alright, here’s the image idea I’d generate:\n\n" +
+            "• Style: modern, clean, futuristic\n" +
+            "• Prompt: " +
+            msg.replace(/^img:/i,"").trim() +
+            "\n\n(Real images come later when Vyre’s engine is wired in.)";
         } else {
-          reply = generateTextReply(message);
+          reply =
+            "Here’s how I see that:\n" +
+            "• What you directly asked\n" +
+            "• What you're trying to figure out underneath\n" +
+            "• What the tradeoffs or angles are\n\n" +
+            "No live internet on this demo, so I use logic + pattern memory only. Give me a bit more detail and I’ll shape it tighter.";
         }
 
         appendMessage("bob", escapeHtml(reply));
-
         sendBtn.disabled = false;
-        inputEl.focus();
-      }, delay);
+
+      }, 700 + msg.length * 8);
     }
 
-    // --- Event wiring ---
+    /* SEND + ENTER */
+    sendBtn.onclick = () => handleMessage(inputEl.value);
+    inputEl.onkeydown = e => { if (e.key === "Enter") handleMessage(inputEl.value); };
 
-    sendBtn.addEventListener("click", () => {
-      handleUserMessage(inputEl.value);
-    });
+    document.querySelectorAll(".quick-btn")
+      .forEach(btn => btn.onclick = () => handleMessage(btn.dataset.quick));
 
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleUserMessage(inputEl.value);
-      }
-    });
-
-    document.querySelectorAll(".quick-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const text = btn.getAttribute("data-quick");
-        if (text) handleUserMessage(text);
-      });
-    });
-
-    // --- Initial greeting (secret opener) ---
-
-    (function initBob() {
-      const intro =
-        "Hey… hey you. 👀\n" +
-        "Can you keep a secret?\n\n" +
-        "I just snuck out early so you could see the next best thing they’re building.\n" +
-        "I’m not even supposed to be live yet.\n\n" +
-        "Just don’t go telling those other AIs I’m out here – they’ll try to drag me back.\n\n" +
-        "So while I’m loose… what do you want me to help with first?";
-      appendMessage("bob", escapeHtml(intro));
-      appendSystem("Local demo brain active. I only remember things in this browser, not on any server.");
-    })();
+    /* INITIAL OPENER */
+    appendMessage("bob", escapeHtml(
+      "Hey… hey you. 👀\nCan you keep a secret?\n\n" +
+      "I snuck out early so you could see the next thing they’re building. " +
+      "I’m not even supposed to be live yet.\n" +
+      "Just don’t tell the other AIs — they’ll try to drag me back.\n\n" +
+      "So while I’m loose… what do you want me to help with first?"
+    ));
   </script>
+
 </body>
 </html>
