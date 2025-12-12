@@ -410,7 +410,7 @@
    const shareMenu   = document.getElementById("shareMenu");
 
 // Where people visit Bob:
-const BOB_URL = "https://dymond78.github.io/Bob-1.10.html";
+const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 
 // Where Bob’s brain lives (local now, Render later)
 const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
@@ -450,52 +450,71 @@ const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    // ----- main brain call to local Python server -----
-    async function handleMessage(raw) {
-      const msg = raw.trim();
-      if (!msg) return;
+    // ----- main brain call to Python server (Render) -----
+async function handleMessage(raw) {
+  const msg = raw.trim();
+  if (!msg) return;
 
-      appendMessage("user", escapeHtml(msg));
-      inputEl.value = "";
-      sendBtn.disabled = true;
-      appendSystem("Bob is thinking…");
+  appendMessage("user", escapeHtml(msg));
+  inputEl.value = "";
+  sendBtn.disabled = true;
+  appendSystem("Bob is thinking…");
 
-      try {
-        const response = await fetch(BOB_API_URL, {
+  try {
+    const response = await fetch(BOB_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    });
 
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: msg })
-        });
+    // Remove “Bob is thinking…”
+    const systems = Array.from(document.querySelectorAll(".msg-system"));
+    const last = systems[systems.length - 1];
+    if (last && last.textContent.includes("thinking")) last.remove();
 
-        const systems = Array.from(document.querySelectorAll(".msg-system"));
-        const last = systems[systems.length - 1];
-        if (last && last.textContent.includes("thinking")) last.remove();
-
-        if (!response.ok) {
-          appendMessage(
-            "bob",
-            escapeHtml("My deeper brain hit an error. Try that again in a moment.")
-          );
-        } else {
-          const data = await response.json();
-          const reply = (data && data.reply) || "I didn’t get a clear reply back.";
-          appendMessage("bob", escapeHtml(reply));
-        }
-      } catch (err) {
-        const systems = Array.from(document.querySelectorAll(".msg-system"));
-        const last = systems[systems.length - 1];
-        if (last && last.textContent.includes("thinking")) last.remove();
-
-        appendMessage(
-          "bob",
-          escapeHtml("I couldn’t reach my deeper brain. If you’re Matt, make sure my server app is running on this device.")
-        );
-      } finally {
-        sendBtn.disabled = false;
-        inputEl.focus();
-      }
+    // Try to parse JSON even if server returned error
+    let data = null;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = null;
     }
+
+    // If backend returned error code (500, 400, etc)
+    if (!response.ok) {
+      const msgText =
+        data && data.error
+          ? data.error
+          : "Unknown server error.";
+      appendMessage("bob", escapeHtml("Server error: " + msgText));
+    }
+
+    // If backend returned success
+    else {
+      const reply =
+        (data && data.reply) ||
+        "I didn’t get a clear reply back.";
+      appendMessage("bob", escapeHtml(reply));
+    }
+  }
+
+  // If fetch failed entirely (network, CORS, no server)
+  catch (err) {
+    const systems = Array.from(document.querySelectorAll(".msg-system"));
+    const last = systems[systems.length - 1];
+    if (last && last.textContent.includes("thinking")) last.remove();
+
+    appendMessage(
+      "bob",
+      escapeHtml("Network error: I couldn’t reach my backend. (" + err + ")")
+    );
+  }
+
+  finally {
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+}
 
     // share helpers
     function shareEmail() {
@@ -625,4 +644,3 @@ const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
   </script>
 </body>
 </html>
-
