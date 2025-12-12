@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -453,7 +453,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ✅ Greeting (prevents “dead” first impression)
   appendMessage("bob", escapeHtml("Yo — I’m Bob. I snuck out early. Ask me anything. ⚡🔥"));
 
-  async function send() {
+  async function handleMessage() {
+
     const msg = inputEl.value.trim();
     if (!msg) return;
 
@@ -476,6 +477,10 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ message: msg }),
         signal: controller.signal
       });
+    if (!res.ok) {
+      Aconst txt = await res.text().catch(() => "");
+      throw new Error(`HTTP ${res.status}: ${txt.slice(0,120)}`);
+}
 
       let data = null;
       try { data = await res.json(); } catch { data = null; }
@@ -497,11 +502,11 @@ document.addEventListener("DOMContentLoaded", () => {
       inputEl.focus();
     }
   }
+      sendBtn.addEventListener("click", (e) => { e.preventDefault(); handleMessage(); });
+      inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); handleMessage(); }
+    });
 
-  sendBtn.addEventListener("click", (e) => { e.preventDefault(); send(); });
-  inputEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); send(); }
-  });
 
   toolsToggle?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -553,7 +558,6 @@ document.addEventListener("DOMContentLoaded", () => {
     location.href = `mailto:vyreai@outlook.com?subject=${encodeURIComponent("Bob feedback")}&body=${encodeURIComponent("Bob link: " + BOB_URL)}`;
   };
 });
-</script>
-
+</script>                                                                                       so this is html  which ever you im working with  is saying i need to fix (HandleMessage) then he says  you (me) already said "handleMessage sure"-good .that removes the duplicated timers + broken try/catch idkwtf he ment or you ment fml 
 
 
