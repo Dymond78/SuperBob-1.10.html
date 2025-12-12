@@ -400,238 +400,220 @@
     </div>
   </main>
 
-  <script>
-   const messagesEl  = document.getElementById("messages");
-   const inputEl     = document.getElementById("userInput");
-   const sendBtn     = document.getElementById("sendBtn");
-   const toolsToggle = document.getElementById("toolsToggle");
-   const toolsPanel  = document.getElementById("toolsPanel");
-   const shareToggle = document.getElementById("shareToggle");
-   const shareMenu   = document.getElementById("shareMenu");
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
 
-// Where people visit Bob:
-const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
+  const messagesEl  = document.getElementById("messages");
+  const inputEl     = document.getElementById("userInput");
+  const sendBtn     = document.getElementById("sendBtn");
+  const toolsToggle = document.getElementById("toolsToggle");
+  const toolsPanel  = document.getElementById("toolsPanel");
+  const shareToggle = document.getElementById("shareToggle");
+  const shareMenu   = document.getElementById("shareMenu");
 
-// Where Bob’s brain lives (local now, Render later)
-const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
+  // Where people visit Bob:
+  const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 
+  // Where Bob’s brain lives (Render)
+  const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
 
+  let lastBobReply = "";
 
-    let lastBobReply = "";
+  function escapeHtml(str) {} return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
 
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-    }
+  function appendMessage(from, text) {
+    const row = document.createElement("div");
+    row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
+    row.innerHTML = `
+      <div class="msg-bubble">
+        <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
+        <div>${text}</div>
+      </div>`;
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
 
-    function appendMessage(from, text) {
-      const row = document.createElement("div");
-      row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
-      row.innerHTML = `
-        <div class="msg-bubble">
-          <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
-          <div>${text}</div>
-        </div>`;
-      messagesEl.appendChild(row);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
+    if (from === "bob") lastBobReply = text;
+  }
 
-      if (from === "bob") {
-        lastBobReply = text;
-      }
-    }
+  function appendSystem(text) {
+    const row = document.createElement("div");
+    row.className = "msg-system";
+    row.textContent = text;
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
 
-    function appendSystem(text) {
-      const row = document.createElement("div");
-      row.className = "msg-system";
-      row.textContent = text;
-      messagesEl.appendChild(row);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-
-    // ----- main brain call to local Python server -----
-   async function handleMessage(raw) {
-  const msg = (raw || "").trim();
-  if (!msg) return;
-
-  appendMessage("user", escapeHtml(msg));
-  inputEl.value = "";
-  sendBtn.disabled = true;
-  appendSystem("Bob is thinking…");
-
-  try {
-    console.log("ABOUT TO FETCH 👉", BOB_API_URL);
-
-    const response = await fetch(BOB_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg })
-    });
-
-    console.log("STATUS:", response.status);
-
-    const data = await response.json(); // ✅ simplest + cleanest
-    console.log("BACKEND DATA:", data);
-
-    // remove the “thinking…” line
+  function removeLastThinking() {
     const systems = Array.from(document.querySelectorAll(".msg-system"));
     const last = systems[systems.length - 1];
-    if (last && last.textContent.includes("thinking")) last.remove();
-
-    const reply = data?.reply ?? "I didn’t get a clear reply back.";
-    appendMessage("bob", escapeHtml(reply));
-
-  } catch (err) {
-    console.error("FETCH ERROR:", err);
-
-    const systems = Array.from(document.querySelectorAll(".msg-system"));
-    const last = systems[systems.length - 1];
-    if (last && last.textContent.includes("thinking")) last.remove();
-
-    appendMessage("bob", "I couldn't reach my deeper brain.");
-  } finally {
-    sendBtn.disabled = false;
-    inputEl.focus();
+    if (last && last.textContent.toLowerCase().includes("thinking")) last.remove();
   }
-}
-  
-// ✅ Wire up Send button + Enter key
-sendBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  console.log("SEND CLICK ✅");
-  handleMessage(inputEl.value);
-});
 
-inputEl.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    console.log("ENTER ✅");
-    handleMessage(inputEl.value);
-  }
-});
+  async function handleMessage(raw) {
+    const msg = (raw || "").trim();
+    if (!msg) return;
 
-    // share helpers
-    function shareEmail() {
-      const subject = encodeURIComponent("Have a look at this AI demo");
-      const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-      window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    } function share      Sms() {} {} {}
-                        
-  const body = encodeURIComponent("Take a look at this AI demo:");
-  window.location.href = `sms:?body=${body}`;{}         {}   {} function shareX() {} {} {}   
-      const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-      window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
-   
+    appendMessage("user", escapeHtml(msg));
+    inputEl.value = "";
+    sendBtn.disabled = true;
+    appendSystem("Bob is thinking…");
 
-    function shareFacebook() {
-      const u = encodeURIComponent(BOB_URL);
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`, "_blank");
-    }
+    try {
+      console.log("ABOUT TO FETCH 👉", BOB_API_URL);
 
-    function shareWhatsApp() {
-      const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-      window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
-    }
-
-    function copyBobLink() {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(BOB_URL)
-          .then(() => alert("Link copied"))
-          .catch(() => alert("Could not copy link, sorry."));
-      } else {
-        const temp = document.createElement("textarea");
-        temp.value = BOB_URL;
-        document.body.appendChild(temp);
-        temp.select();
-        try {
-          document.execCommand("copy");
-          alert("Link copied");
-        } catch (e) {
-          alert("Could not copy link, sorry.");
-        }
-        document.body.removeChild(temp);
-      }
-    }
-
-    function sendBobFeedback() {
-      const subject = encodeURIComponent("Bob feedback");
-      const body = encodeURIComponent(
-        "Hi Bob / Vyre team,\n\n" +
-        "Here is my feedback about the Bob demo:\n\n" +
-        "- What I liked:\n" +
-        "- What felt off:\n" +
-        "- Ideas for upgrades:\n\n" +
-        "Sent from the Bob web demo."
-      );
-      window.location.href =
-        `mailto:vyreai@outlook.comubject=${subject}&body=${body}`;
-    }
-
-    // wire up UI
-    sendBtn.addEventListener("click", function () {
-      handleMessage(inputEl.value);
-    });
-
-    inputEl.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleMessage(inputEl.value);
-      }
-    });
-
-    toolsToggle.addEventListener("click", function (e) {
-      e.stopPropagation();
-      toolsPanel.classList.toggle("open");
-    });
-
-    document.addEventListener("click", function (e) {
-      if (!toolsPanel.contains(e.target) && !toolsToggle.contains(e.target)) {
-        toolsPanel.classList.remove("open");
-      }
-      if (!shareMenu.contains(e.target) && !shareToggle.contains(e.target)) {
-        shareMenu.classList.remove("open");
-      }
-    });
-
-    toolsPanel.querySelectorAll("button").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const quick = btn.getAttribute("data-quick");
-        toolsPanel.classList.remove("open");
-
-        if (quick === "video_from_last") {
-          if (!lastBobReply) {
-            appendMessage(
-              "bob",
-              escapeHtml("Let me answer something first, then I’ll turn it into a video idea.")
-            );
-            return;
-          }
-          const prompt =
-            "Turn this answer into a short, punchy social media video script " +
-            "with scenes, on-screen text, and a clear hook and outro:\n\n" +
-            lastBobReply;
-          handleMessage(prompt);
-        } else {
-          handleMessage(quick);
-        }
+      const response = await fetch(BOB_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
       });
-    });
 
-    shareToggle.addEventListener("click", function (e) {
-      e.stopPropagation();
-      shareMenu.classList.toggle("open");
-    });
+      console.log("STATUS:", response.status);
 
-    // initial message
-    appendMessage(
-      "bob",
-      escapeHtml(
-        "You found Bob – Vyre’s early-access assistant.\n\n" +
-        "Ask me for help with ideas, writing, decisions, or breaking something down.\n" +
-        "After I answer, you can hit the 🎬 tool and I’ll turn it into a video-style script."
-      )
+      const data = await response.json();
+      console.log("BACKEND DATA:", data);
+
+      removeLastThinking();
+
+      const reply = data?.reply ?? "I didn’t get a clear reply back.";
+      appendMessage("bob", escapeHtml(reply));
+
+    } catch (err) {
+      console.error("FETCH ERROR:", err);
+      removeLastThinking();
+      appendMessage("bob", "I couldn't reach my deeper brain.");
+    } finally {
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  // ✅ Send + Enter (ONLY ONCE)
+  sendBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    handleMessage(inputEl.value);
+  });
+
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleMessage(inputEl.value);
+    }
+  });
+
+  // ✅ Share helpers (fixed)
+  function shareEmail() {
+    const subject = encodeURIComponent("Have a look at this AI demo");
+    const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+
+  function shareSms() {
+    const body = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+    window.location.href = `sms:?body=${body}`;
+  }
+
+  function shareX() {
+    const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+  }
+
+  function shareFacebook() {
+    const u = encodeURIComponent(BOB_URL);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`, "_blank");
+  }
+
+  function shareWhatsApp() {
+    const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+  }
+
+  function copyBobLink() {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(BOB_URL)
+        .then(() => alert("Link copied"))
+        .catch(() => alert("Could not copy link, sorry."));
+    } else {
+      const temp = document.createElement("textarea");
+      temp.value = BOB_URL;
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand("copy");
+        alert("Link copied");
+      } catch (e) {
+        alert("Could not copy link, sorry.");
+      }
+      document.body.removeChild(temp);
+    }
+  }
+
+  function sendBobFeedback() {
+    const subject = encodeURIComponent("Bob feedback");
+    const body = encodeURIComponent(
+      "Hi Bob / Vyre team,\n\n" +
+      "Here is my feedback about the Bob demo:\n\n" +
+      "- What I liked:\n" +
+      "- What felt off:\n" +
+      "- Ideas for upgrades:\n\n" +
+      "Sent from the Bob web demo.\n\n" +
+      "Bob link: " + BOB_URL
     );
-  </script>
-</body>
-</html>
+
+    // ✅ FIXED mailto
+    window.location.href = `mailto:vyreai@outlook.com?subject=${subject}&body=${body}`;
+  }
+
+  // tools panel
+  toolsToggle.addEventListener("click", function (e) {
+    e.stopPropagation();
+    toolsPanel.classList.toggle("open");
+  });
+
+  // share menu
+  shareToggle.addEventListener("click", function (e) {
+    e.stopPropagation();
+    shareMenu.classList.toggle("open");
+  });
+
+ <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // ✅ QUICK CHECK (leave this in for now)
+  console.log("✅ Bob script loaded");
+
+  const messagesEl  = document.getElementById("messages");
+  const inputEl     = document.getElementById("userInput");
+  const sendBtn     = document.getElementById("sendBtn");
+
+  if (!messagesEl) {
+    alert("❌ Can't find #messages. Check: <div id='messages'></div>");
+    return;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function appendMessage(from, text) {
+    const row = document.createElement("div");
+    row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
+    row.innerHTML = `
+      <div class="msg-bubble">
+        <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
+        <div>${text}</div>
+      </div>`;
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // ✅ FORCE a visible test message
+  appendMessage("bob", escapeHtml("✅ Bob is on-screen. If you see this, JS is working."));
+
+  // --- NOW paste the rest of your code BELOW this line (handleMessage, share, tools, etc.) ---
+
+});
+</script>
