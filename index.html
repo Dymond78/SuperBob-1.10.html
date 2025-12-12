@@ -413,7 +413,7 @@
 const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 
 // Where Bob’s brain lives (local now, Render later)
-const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
+const BOB_API_URL = "http://127.0.0.1:5000/bob"; 
 // later you’ll change this to: "https://<your-render-name>.onrender.com/bob"
 
 
@@ -450,8 +450,8 @@ const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    // ----- main brain call to Python server (Render) -----
-async function handleMessage(raw) {
+    // ----- main brain call to local Python server -----
+    async function handleMessage(raw) {
   const msg = raw.trim();
   if (!msg) return;
 
@@ -460,61 +460,74 @@ async function handleMessage(raw) {
   sendBtn.disabled = true;
   appendSystem("Bob is thinking…");
 
-  try {
-    const response = await fetch(BOB_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg })
-    });
+  const response = await fetch(BOB_API_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message: msg })
+});
 
-    // Remove “Bob is thinking…”
-    const systems = Array.from(document.querySelectorAll(".msg-system"));
-    const last = systems[systems.length - 1];
-    if (last && last.textContent.includes("thinking")) last.remove();
+    
+    // 🔥 debug 1: status
+    console.log("STATUS:", response.status);
 
-    // Try to parse JSON even if server returned error
-    let data = null;
-    try {
-      data = await response.json();
-    } catch (e) {
-      data = null;
-    }
+    // 🔥 debug 2: raw text (helps when JSON fails)
+    const text = await response.text();
+    console.log("RAW BODY:", text);
 
-    // If backend returned error code (500, 400, etc)
-    if (!response.ok) {
-      const msgText =
-        data && data.error
-          ? data.error
-          : "Unknown server error.";
-      appendMessage("bob", escapeHtml("Server error: " + msgText));
-    }
+    // parse JSON safely
+    let data = {};
+    try { data = JSON.parse(text); } catch(e) {}
 
-    // If backend returned success
-    else {
-      const reply =
-        (data && data.reply) ||
-        "I didn’t get a clear reply back.";
-      appendMessage("bob", escapeHtml(reply));
-    }
-  }
+    // 🔥 debug 3: parsed JSON
+    console.log("BACKEND DATA:", data);
 
-  // If fetch failed entirely (network, CORS, no server)
-  catch (err) {
-    const systems = Array.from(document.querySelectorAll(".msg-system"));
-    const last = systems[systems.length - 1];
-    if (last && last.textContent.includes("thinking")) last.remove();
+    const reply = (data && data.reply) ? data.reply : "I didn't get a reply.";
+    appendMessage("bob", escapeHtml(reply));
 
-    appendMessage(
-      "bob",
-      escapeHtml("Network error: I couldn’t reach my backend. (" + err + ")")
-    );
-  }
-
-  finally {
+  } catch (err) {
+    console.error("FETCH ERROR:", err);
+    appendMessage("bob", "I couldn't reach my deeper brain.");
+  } finally {
     sendBtn.disabled = false;
     inputEl.focus();
   }
 }
+
+        const response = await fetch(BOB_API_URL, {
+
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+
+        const systems = Array.from(document.querySelectorAll(".msg-system"));
+        const last = systems[systems.length - 1];
+        if (last && last.textContent.includes("thinking")) last.remove();
+
+        if (!response.ok) {
+          appendMessage(
+            "bob",
+            escapeHtml("My deeper brain hit an error. Try that again in a moment.")
+          );
+        } else {
+          const data = await response.json();
+          const reply = (data && data.reply) || "I didn’t get a clear reply back.";
+          appendMessage("bob", escapeHtml(reply));
+        }
+      } catch (err) {
+        const systems = Array.from(document.querySelectorAll(".msg-system"));
+        const last = systems[systems.length - 1];
+        if (last && last.textContent.includes("thinking")) last.remove();
+
+        appendMessage(
+          "bob",
+          escapeHtml("I couldn’t reach my deeper brain. If you’re Matt, make sure my server app is running on this device.")
+        );
+      } finally {
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+    }
 
     // share helpers
     function shareEmail() {
