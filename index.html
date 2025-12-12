@@ -415,7 +415,6 @@ const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 // Where Bob’s brain lives (local now, Render later)
 const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
 
-// later you’ll change this to: "https://<your-render-name>.onrender.com/bob"
 
 
     let lastBobReply = "";
@@ -452,102 +451,78 @@ const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
     }
 
     // ----- main brain call to local Python server -----
-    async function handleMessage(raw) {
-  const msg = raw.trim();
+   async function handleMessage(raw) {
+  const msg = (raw || "").trim();
   if (!msg) return;
-  console.log("HANDLEMESSAGE FIRED ✅", raw);
 
   appendMessage("user", escapeHtml(msg));
   inputEl.value = "";
   sendBtn.disabled = true;
   appendSystem("Bob is thinking…");
 
-  console.log("ABOUT TO FETCH 👉", BOB_API_URL);
-  const response = await fetch(BOB_API_URL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ message: msg })
-});
+  try {
+    console.log("ABOUT TO FETCH 👉", BOB_API_URL);
 
-    
-    // 🔥 debug 1: status
+    const response = await fetch(BOB_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    });
+
     console.log("STATUS:", response.status);
 
-    // 🔥 debug 2: raw text (helps when JSON fails)
-    const text = await response.text();
-    console.log("RAW BODY:", text);
-
-    // parse JSON safely
-    let data = {};
-    try { data = JSON.parse(text); } catch(e) {}
-
-    // 🔥 debug 3: parsed JSON
+    const data = await response.json(); // ✅ simplest + cleanest
     console.log("BACKEND DATA:", data);
 
-    const reply = (data && data.reply) ? data.reply : "I didn't get a reply.";
+    // remove the “thinking…” line
+    const systems = Array.from(document.querySelectorAll(".msg-system"));
+    const last = systems[systems.length - 1];
+    if (last && last.textContent.includes("thinking")) last.remove();
+
+    const reply = data?.reply ?? "I didn’t get a clear reply back.";
     appendMessage("bob", escapeHtml(reply));
 
   } catch (err) {
     console.error("FETCH ERROR:", err);
+
+    const systems = Array.from(document.querySelectorAll(".msg-system"));
+    const last = systems[systems.length - 1];
+    if (last && last.textContent.includes("thinking")) last.remove();
+
     appendMessage("bob", "I couldn't reach my deeper brain.");
   } finally {
     sendBtn.disabled = false;
     inputEl.focus();
   }
 }
+  
+// ✅ Wire up Send button + Enter key
+sendBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  console.log("SEND CLICK ✅");
+  handleMessage(inputEl.value);
+});
 
-        const response = await fetch(BOB_API_URL, {
-
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: msg })
-        });
-
-        const systems = Array.from(document.querySelectorAll(".msg-system"));
-        const last = systems[systems.length - 1];
-        if (last && last.textContent.includes("thinking")) last.remove();
-
-        if (!response.ok) {
-          appendMessage(
-            "bob",
-            escapeHtml("My deeper brain hit an error. Try that again in a moment.")
-          );
-        } else {
-          const data = await response.json();
-          const reply = (data && data.reply) || "I didn’t get a clear reply back.";
-          appendMessage("bob", escapeHtml(reply));
-        }
-      } catch (err) {
-        const systems = Array.from(document.querySelectorAll(".msg-system"));
-        const last = systems[systems.length - 1];
-        if (last && last.textContent.includes("thinking")) last.remove();
-
-        appendMessage(
-          "bob",
-          escapeHtml("I couldn’t reach my deeper brain. If you’re Matt, make sure my server app is running on this device.")
-        );
-      } finally {
-        sendBtn.disabled = false;
-        inputEl.focus();
-      }
-    }
+inputEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    console.log("ENTER ✅");
+    handleMessage(inputEl.value);
+  }
+});
 
     // share helpers
     function shareEmail() {
       const subject = encodeURIComponent("Have a look at this AI demo");
       const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
       window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    }
-
-    function shareSms() {
-      const body = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
-      window.location.href = `sms:?body=${body}`;
-    }
-
-    function shareX() {
+    } function share      Sms() {} {} {}
+                        
+  const body = encodeURIComponent("Take a look at this AI demo:");
+  window.location.href = `sms:?body=${body}`;{}         {}   {} function shareX() {} {} {}   
       const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
       window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
-    }
+   
 
     function shareFacebook() {
       const u = encodeURIComponent(BOB_URL);
@@ -590,7 +565,7 @@ const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
         "Sent from the Bob web demo."
       );
       window.location.href =
-        `mailto:VyreAI@outlook.ca?subject=${subject}&body=${body}`;
+        `mailto:vyreai@outlook.comubject=${subject}&body=${body}`;
     }
 
     // wire up UI
