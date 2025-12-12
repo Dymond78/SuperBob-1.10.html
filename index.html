@@ -478,7 +478,7 @@ document.addEventListener("DOMContentLoaded", () => {
         signal: controller.signal
       });
     if (!res.ok) {
-      Aconst txt = await res.text().catch(() => "");
+      const txt = await res.text().catch(() => "");
       throw new Error(`HTTP ${res.status}: ${txt.slice(0,120)}`);
 }
 
@@ -559,3 +559,4 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 });                                                                                                                                              
 </script>                                                                                                                                          
+
