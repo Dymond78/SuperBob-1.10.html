@@ -413,7 +413,8 @@
 const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
 
 // Where Bob’s brain lives (local now, Render later)
-const BOB_API_URL = "http://127.0.0.1:5000/bob"; 
+const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
+
 // later you’ll change this to: "https://<your-render-name>.onrender.com/bob"
 
 
@@ -454,12 +455,14 @@ const BOB_API_URL = "http://127.0.0.1:5000/bob";
     async function handleMessage(raw) {
   const msg = raw.trim();
   if (!msg) return;
+  console.log("HANDLEMESSAGE FIRED ✅", raw);
 
   appendMessage("user", escapeHtml(msg));
   inputEl.value = "";
   sendBtn.disabled = true;
   appendSystem("Bob is thinking…");
 
+  console.log("ABOUT TO FETCH 👉", BOB_API_URL);
   const response = await fetch(BOB_API_URL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
