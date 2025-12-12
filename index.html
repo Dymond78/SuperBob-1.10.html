@@ -401,8 +401,7 @@
   </main>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-
+document.addEventListener("DOMContentLoaded", () => {
   const messagesEl  = document.getElementById("messages");
   const inputEl     = document.getElementById("userInput");
   const sendBtn     = document.getElementById("sendBtn");
@@ -411,32 +410,37 @@
   const shareToggle = document.getElementById("shareToggle");
   const shareMenu   = document.getElementById("shareMenu");
 
-  // Where people visit Bob:
-  const BOB_URL = "https://dymond78.github.io/SuperBob-1.10.html";
+  if (!messagesEl || !inputEl || !sendBtn) {
+    alert("Bob page error: missing #messages, #userInput, or #sendBtn in HTML.");
+    return;
+  }
+
+  // Where people visit Bob (use current page URL so you never forget to update it)
+  const BOB_URL = window.location.href;
 
   // Where Bob’s brain lives (Render)
   const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
 
   let lastBobReply = "";
 
-  function escapeHtml(str) {} return String(str)
+  function escapeHtml(str) {
+    return String(str ?? "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
   }
 
-  function appendMessage(from, text) {
+  function appendMessage(from, textHtmlSafe) {
     const row = document.createElement("div");
     row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
     row.innerHTML = `
       <div class="msg-bubble">
         <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
-        <div>${text}</div>
+        <div>${textHtmlSafe}</div>
       </div>`;
     messagesEl.appendChild(row);
     messagesEl.scrollTop = messagesEl.scrollHeight;
-
-    if (from === "bob") lastBobReply = text;
+    if (from === "bob") lastBobReply = textHtmlSafe;
   }
 
   function appendSystem(text) {
@@ -451,7 +455,16 @@
     const systems = Array.from(document.querySelectorAll(".msg-system"));
     const last = systems[systems.length - 1];
     if (last && last.textContent.toLowerCase().includes("thinking")) last.remove();
+    if (last && last.textContent.toLowerCase().includes("still here")) last.remove();
   }
+
+  function setSending(isSending) {
+    sendBtn.disabled = isSending;
+    sendBtn.innerHTML = isSending ? "Thinking…" : 'Send <span>➤</span>';
+  }
+
+  // ✅ Instant greeting so nobody ever sees a “dead” Bob
+  appendMessage("bob", escapeHtml("Yo — I’m Bob. I snuck out early. Ask me anything. ⚡🔥"));
 
   async function handleMessage(raw) {
     const msg = (raw || "").trim();
@@ -459,39 +472,70 @@
 
     appendMessage("user", escapeHtml(msg));
     inputEl.value = "";
-    sendBtn.disabled = true;
+    setSending(true);
     appendSystem("Bob is thinking…");
 
-    try {
-      console.log("ABOUT TO FETCH 👉", BOB_API_URL);
+    // If Render is sleeping, reassure after 4s
+    const slowTimer = setTimeout(() => {
+      appendSystem("Still here — my deeper brain is waking up…");
+    }, 4000);
 
+    const controller = new AbortController();
+    const hardTimeout = setTimeout(() => controller.abort(), 20000);
+
+    try {
       const response = await fetch(BOB_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg })
+        body: JSON.stringify({ message: msg }),
+        signal: controller.signal
       });
 
-      console.log("STATUS:", response.status);
+      // Try JSON first; if it fails, show readable fallback
+      let data = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
 
-      const data = await response.json();
-      console.log("BACKEND DATA:", data);
-
+      clearTimeout(slowTimer);
+      clearTimeout(hardTimeout);
       removeLastThinking();
 
-      const reply = data?.reply ?? "I didn’t get a clear reply back.";
+      if (!response.ok) {
+        const msg2 = data?.error
+          ? `My brain replied with an issue: ${data.error}`
+          : `My brain replied with an issue (status ${response.status}). Try again.`;
+        appendMessage("bob", escapeHtml(msg2));
+        return;
+      }
+
+      const reply = data?.reply ?? "I didn’t get a clear reply back. Try again.";
       appendMessage("bob", escapeHtml(reply));
 
     } catch (err) {
-      console.error("FETCH ERROR:", err);
+      clearTimeout(slowTimer);
+      clearTimeout(hardTimeout);
       removeLastThinking();
-      appendMessage("bob", "I couldn't reach my deeper brain.");
+
+      // Friendly, confidence-building fallback
+      const isAbort = (err && (err.name === "AbortError"));
+      appendMessage(
+        "bob",
+        escapeHtml(
+          isAbort
+            ? "Quick heads up — my deeper brain took too long to wake up. Refresh once and try again. ⚡"
+            : "Hey — I couldn’t reach my deeper brain right now. Refresh once and try again. ⚡"
+        )
+      );
     } finally {
-      sendBtn.disabled = false;
+      setSending(false);
       inputEl.focus();
     }
   }
 
-  // ✅ Send + Enter (ONLY ONCE)
+  // ✅ Send + Enter
   sendBtn.addEventListener("click", (e) => {
     e.preventDefault();
     handleMessage(inputEl.value);
@@ -504,54 +548,79 @@
     }
   });
 
-  // ✅ Share helpers (fixed)
-  function shareEmail() {
+  // ✅ Tools panel toggle
+  toolsToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toolsPanel?.classList.toggle("open");
+    shareMenu?.classList.remove("open");
+  });
+
+  // ✅ Share menu toggle
+  shareToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    shareMenu?.classList.toggle("open");
+    toolsPanel?.classList.remove("open");
+  });
+
+  // Close menus if you click outside
+  document.addEventListener("click", () => {
+    toolsPanel?.classList.remove("open");
+    shareMenu?.classList.remove("open");
+  });
+
+  // ✅ Quick tools buttons: fill the input (so user can edit), NOT auto-send
+  document.querySelectorAll("#toolsPanel button[data-quick]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const q = btn.getAttribute("data-quick") || "";
+      toolsPanel?.classList.remove("open");
+      inputEl.value = q;
+      inputEl.focus();
+    });
+  });
+
+  // ✅ Share helpers (must be on window because your HTML uses onclick="")
+  window.shareEmail = function () {
     const subject = encodeURIComponent("Have a look at this AI demo");
     const body    = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
-  }
+  };
 
-  function shareSms() {
+  window.shareSms = function () {
     const body = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.location.href = `sms:?body=${body}`;
-  }
+  };
 
-  function shareX() {
+  window.shareX = function () {
     const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
-  }
+  };
 
-  function shareFacebook() {
+  window.shareFacebook = function () {
     const u = encodeURIComponent(BOB_URL);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`, "_blank");
-  }
+  };
 
-  function shareWhatsApp() {
+  window.shareWhatsApp = function () {
     const text = encodeURIComponent("Take a look at this AI demo: " + BOB_URL);
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
-  }
+  };
 
-  function copyBobLink() {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(BOB_URL)
-        .then(() => alert("Link copied"))
-        .catch(() => alert("Could not copy link, sorry."));
+  window.copyBobLink = function () {
+    const txt = BOB_URL;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(txt).then(() => alert("Link copied")).catch(() => alert("Could not copy link"));
     } else {
       const temp = document.createElement("textarea");
-      temp.value = BOB_URL;
+      temp.value = txt;
       document.body.appendChild(temp);
       temp.select();
-      try {
-        document.execCommand("copy");
-        alert("Link copied");
-      } catch (e) {
-        alert("Could not copy link, sorry.");
-      }
+      document.execCommand("copy");
       document.body.removeChild(temp);
+      alert("Link copied");
     }
-  }
+  };
 
-  function sendBobFeedback() {
+  window.sendBobFeedback = function () {
     const subject = encodeURIComponent("Bob feedback");
     const body = encodeURIComponent(
       "Hi Bob / Vyre team,\n\n" +
@@ -562,58 +631,7 @@
       "Sent from the Bob web demo.\n\n" +
       "Bob link: " + BOB_URL
     );
-
-    // ✅ FIXED mailto
     window.location.href = `mailto:vyreai@outlook.com?subject=${subject}&body=${body}`;
-  }
-
-  // tools panel
-  toolsToggle.addEventListener("click", function (e) {
-    e.stopPropagation();
-    toolsPanel.classList.toggle("open");
-  });
-
-  // share menu
-  shareToggle.addEventListener("click", function (e) {
-    e.stopPropagation();
-    shareMenu.classList.toggle("open");
-  });
-
- <script>
-document.addEventListener("DOMContentLoaded", () => {
-
-  // ✅ QUICK CHECK (leave this in for now)
-  console.log("✅ Bob script loaded");
-
-  const messagesEl  = document.getElementById("messages");
-  const inputEl     = document.getElementById("userInput");
-  const sendBtn     = document.getElementById("sendBtn");
-
-  if (!messagesEl) {
-    alert("❌ Can't find #messages. Check: <div id='messages'></div>");
-    return;
-  }
-
-  function escapeHtml(str) {
-    return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
-
-  function appendMessage(from, text) {
-    const row = document.createElement("div");
-    row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
-    row.innerHTML = `
-      <div class="msg-bubble">
-        <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
-        <div>${text}</div>
-      </div>`;
-    messagesEl.appendChild(row);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  // ✅ FORCE a visible test message
-  appendMessage("bob", escapeHtml("✅ Bob is on-screen. If you see this, JS is working."));
-
-  // --- NOW paste the rest of your code BELOW this line (handleMessage, share, tools, etc.) ---
-
+  };
 });
 </script>
