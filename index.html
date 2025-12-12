@@ -399,7 +399,6 @@
 
     </div>
   </main>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const messagesEl  = document.getElementById("messages");
@@ -410,10 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const shareToggle = document.getElementById("shareToggle");
   const shareMenu   = document.getElementById("shareMenu");
 
-  if (!messagesEl || !inputEl || !sendBtn) {
-    alert("Bob UI failed to load.");
-    return;
-  }
+  if (!messagesEl || !inputEl || !sendBtn) return;
 
   const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
   const BOB_URL = window.location.href;
@@ -445,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  function removeSystem() {
+  function clearSystem() {
     document.querySelectorAll(".msg-system").forEach(e => e.remove());
   }
 
@@ -454,10 +450,10 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.innerHTML = on ? "Thinking…" : 'Send <span>➤</span>';
   }
 
-  // ✅ ALWAYS GREET
+  // ✅ Greeting (prevents “dead” first impression)
   appendMessage("bob", escapeHtml("Yo — I’m Bob. I snuck out early. Ask me anything. ⚡🔥"));
 
-  async function handleMessage() {
+  async function send() {
     const msg = inputEl.value.trim();
     if (!msg) return;
 
@@ -471,7 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 4000);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
+    const hardTimeout = setTimeout(() => controller.abort(), 20000);
 
     try {
       const res = await fetch(BOB_API_URL, {
@@ -481,72 +477,83 @@ document.addEventListener("DOMContentLoaded", () => {
         signal: controller.signal
       });
 
-      clearTimeout(slowTimer);
-      clearTimeout(timeout);
-      removeSystem();
+      let data = null;
+      try { data = await res.json(); } catch { data = null; }
 
-      const data = await res.json();
-      appendMessage("bob", escapeHtml(data.reply || "Try that again."));
+      clearTimeout(slowTimer);
+      clearTimeout(hardTimeout);
+      clearSystem();
+
+      const reply = data?.reply || "Try again — my deeper brain didn’t answer clearly.";
+      appendMessage("bob", escapeHtml(reply));
 
     } catch (err) {
       clearTimeout(slowTimer);
-      clearTimeout(timeout);
-      removeSystem();
-      appendMessage(
-        "bob",
-        escapeHtml("My deeper brain is waking up — refresh once and try again. ⚡")
-      );
+      clearTimeout(hardTimeout);
+      clearSystem();
+      appendMessage("bob", escapeHtml("My deeper brain is waking up — refresh once and try again. ⚡"));
     } finally {
       setSending(false);
       inputEl.focus();
     }
   }
 
-  sendBtn.addEventListener("click", handleMessage);
-  inputEl.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleMessage();
-    }
+  sendBtn.addEventListener("click", (e) => { e.preventDefault(); send(); });
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); send(); }
   });
 
-  toolsToggle?.addEventListener("click", e => {
+  toolsToggle?.addEventListener("click", (e) => {
     e.stopPropagation();
-    toolsPanel.classList.toggle("open");
-    shareMenu.classList.remove("open");
+    toolsPanel?.classList.toggle("open");
+    shareMenu?.classList.remove("open");
   });
 
-  shareToggle?.addEventListener("click", e => {
+  shareToggle?.addEventListener("click", (e) => {
     e.stopPropagation();
-    shareMenu.classList.toggle("open");
-    toolsPanel.classList.remove("open");
+    shareMenu?.classList.toggle("open");
+    toolsPanel?.classList.remove("open");
   });
 
   document.addEventListener("click", () => {
-    toolsPanel.classList.remove("open");
-    shareMenu.classList.remove("open");
+    toolsPanel?.classList.remove("open");
+    shareMenu?.classList.remove("open");
   });
 
-  document.querySelectorAll("#toolsPanel button[data-quick]").forEach(btn => {
+  document.querySelectorAll("#toolsPanel button[data-quick]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      inputEl.value = btn.dataset.quick || "";
+      inputEl.value = btn.getAttribute("data-quick") || "";
       inputEl.focus();
-      toolsPanel.classList.remove("open");
+      toolsPanel?.classList.remove("open");
     });
   });
 
-  window.shareEmail = () => location.href =
-    `mailto:?subject=AI Demo&body=${encodeURIComponent(BOB_URL)}`;
-  window.shareSms = () => location.href =
-    `sms:?body=${encodeURIComponent(BOB_URL)}`;
-  window.shareX = () =>
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(BOB_URL)}`);
-  window.shareFacebook = () =>
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(BOB_URL)}`);
-  window.shareWhatsApp = () =>
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(BOB_URL)}`);
-  window.copyBobLink = () => navigator.clipboard.writeText(BOB_URL);
-  window.sendBobFeedback = () =>
-    location.href = `mailto:vyreai@outlook.com?subject=Bob Feedback&body=${encodeURIComponent(BOB_URL)}`;
+  // Share helpers for onclick=""
+  window.shareEmail = function () {
+    location.href = `mailto:?subject=${encodeURIComponent("Have a look at this AI demo")}&body=${encodeURIComponent(BOB_URL)}`;
+  };
+  window.shareSms = function () {
+    location.href = `sms:?body=${encodeURIComponent("Take a look: " + BOB_URL)}`;
+  };
+  window.shareX = function () {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("Take a look: " + BOB_URL)}`, "_blank");
+  };
+  window.shareFacebook = function () {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(BOB_URL)}`, "_blank");
+  };
+  window.shareWhatsApp = function () {
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Take a look: " + BOB_URL)}`, "_blank");
+  };
+  window.copyBobLink = function () {
+    (navigator.clipboard?.writeText ? navigator.clipboard.writeText(BOB_URL) : Promise.reject())
+      .then(() => alert("Link copied"))
+      .catch(() => alert("Could not copy link"));
+  };
+  window.sendBobFeedback = function () {
+    location.href = `mailto:vyreai@outlook.com?subject=${encodeURIComponent("Bob feedback")}&body=${encodeURIComponent("Bob link: " + BOB_URL)}`;
+  };
 });
 </script>
+
+
+
