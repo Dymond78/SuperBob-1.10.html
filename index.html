@@ -1,1 +1,566 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bob – Vyre Demo by Dymond</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --bg-card: rgba(15, 23, 42, 0.96);
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --bubble-user: #0f172a;
+      --bubble-bob: #020617;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827, #020617);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      max-width: 480px;
+      width: 94%;
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-inner { position: relative; z-index: 2; }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .bob-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #111;
+      font-size: 1.25rem;
+      box-shadow: 0 0 0 2px #0008, 0 0 15px #38bdf8aa;
+    }
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-top: 2px;
+    }
+
+    /* CHAT AREA */
+    .chat {
+      border-radius: 16px;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid #2a3347;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      min-height: 230px;
+      overflow: hidden;
+    }
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+
+    .msg-row { display: flex; font-size: 0.82rem; }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-bubble {
+      max-width: 80%;
+      padding: 8px 10px;
+      border-radius: 12px;
+      line-height: 1.32;
+    }
+    .msg-user .msg-bubble {
+      background: var(--bubble-user);
+      border: 1px solid #42526a;
+    }
+    .msg-bob .msg-bubble {
+      background: var(--bubble-bob);
+      border: 1px solid #38bdf866;
+      box-shadow: 0 4px 12px #000b;
+    }
+    .msg-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .msg-system {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* INPUT */
+    .input-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: rgba(15,23,42,0.96);
+      color: var(--text-main);
+      font-size: 0.82rem;
+    }
+    .input-row input::placeholder {
+      color: var(--text-muted);
+    }
+    .send-btn {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg,#38bdf8,#0ea5e9);
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 14px #0009;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+    .send-btn:disabled { opacity: 0.6; cursor: default; box-shadow:none; }
+
+    /* QUICK TOOLS SLIDER */
+    .tools-toggle {
+      position: absolute;
+      right: 16px;
+      bottom: 168px;
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: none;
+      background: radial-gradient(circle at 30% 0%, #fb923c, #dc2626);
+      color: #f9fafb;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px #020617, 0 0 18px rgba(248,113,113,0.6);
+    }
+    .tools-toggle span {
+      display: block;
+      transform: translateY(1px);
+    }
+    .tools-panel {
+      position: absolute;
+      right: 60px;
+      bottom: 160px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(15,23,42,0.98);
+      box-shadow: 0 18px 30px #000b;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 180px;
+      border: 1px solid #374151;
+      z-index: 3;
+    }
+    .tools-panel.open { display: flex; }
+    .tools-panel button {
+      border: none;
+      background: #111827;
+      color: var(--text-main);
+      padding: 6px 9px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tools-panel button span.emoji {
+      width: 16px;
+      text-align: center;
+    }
+    .tools-panel button:hover {
+      background: #1f2937;
+      color: var(--accent);
+    }
+
+    /* SHARE ROW + FOOTER */
+    .share-row {
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+    .share-main-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      background: rgba(15,23,42,0.96);
+      color: var(--text-main);
+      font-size: 0.74rem;
+      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .share-main-btn span.icon {
+      font-size: 0.9rem;
+    }
+    .share-main-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px rgba(56,189,248,0.4);
+    }
+
+    .share-menu {
+      position: absolute;
+      bottom: 40px;
+      right: 50%;
+      transform: translateX(50%);
+      background: rgba(15,23,42,0.98);
+      border-radius: 12px;
+      border: 1px solid #4b5563;
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 190px;
+      max-height: 220px;
+      overflow-y: auto;
+      box-shadow: 0 16px 30px #000b;
+      z-index: 4;
+    }
+    .share-menu.open { display: flex; }
+    .share-menu button {
+      border: none;
+      background: #020617;
+      color: var(--text-main);
+      font-size: 0.72rem;
+      padding: 5px 7px;
+      border-radius: 8px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .share-menu button span.emoji {
+      width: 16px;
+      text-align: center;
+    }
+    .share-menu button:hover {
+      background: #111827;
+      color: var(--accent);
+    }
+
+    .bottom-footer {
+      margin-top: 8px;
+      font-size: 0.7rem;
+      text-align: center;
+      color: var(--text-muted);
+      opacity: 0.9;
+      padding-bottom: 4px;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="card">
+    <div class="card-inner">
+
+      <header class="header">
+        <div class="bob-avatar">B</div>
+        <div>
+          <div class="title-row">
+            <div class="title">
+              Bob <span style="font-size:1.15rem;">⚡🔥</span>
+            </div>
+          </div>
+          <div class="subtitle">Early-access Vyre assistant. I actually help, not just look cool.</div>
+        </div>
+      </header>
+
+      <section class="chat">
+        <div class="messages" id="messages"></div>
+
+        <div class="input-row">
+          <input id="userInput" autocomplete="off"
+                 placeholder="Ask Bob for help with anything..." />
+          <button id="sendBtn" class="send-btn">
+            Send <span>➤</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Quick tools slider -->
+      <button class="tools-toggle" id="toolsToggle" aria-label="Open Bob tools">
+        <span>⚡🔥</span>
+      </button>
+
+      <div class="tools-panel" id="toolsPanel">
+        <button data-quick="Help me decide something.">
+          <span class="emoji">💡</span>
+          <span>Help with a decision</span>
+        </button>
+        <button data-quick="Explain something so I actually get it.">
+          <span class="emoji">📘</span>
+          <span>Explain something</span>
+        </button>
+        <button data-quick="Give me your honest take on an idea I have.">
+          <span class="emoji">🔍</span>
+          <span>Honest opinion</span>
+        </button>
+        <button data-quick="img: a tiny glowing AI core in a dark lab">
+          <span class="emoji">🎨</span>
+          <span>Try an image idea</span>
+        </button>
+        <button data-quick="video_from_last">
+          <span class="emoji">🎬</span>
+          <span>Video idea from last answer</span>
+        </button>
+      </div>
+
+      <!-- Share row -->
+      <div class="share-row">
+        <button id="shareToggle" class="share-main-btn">
+          <span class="icon">🔗</span>
+          <span>Share</span>
+        </button>
+        <div id="shareMenu" class="share-menu">
+          <button type="button" onclick="shareEmail()">
+            <span class="emoji">📩</span><span>Email</span>
+          </button>
+          <button type="button" onclick="shareSms()">
+            <span class="emoji">💬</span><span>Text / SMS</span>
+          </button>
+          <button type="button" onclick="shareX()">
+            <span class="emoji">❌</span><span>Share on X</span>
+          </button>
+          <button type="button" onclick="shareFacebook()">
+            <span class="emoji">📘</span><span>Share on Facebook</span>
+          </button>
+          <button type="button" onclick="shareWhatsApp()">
+            <span class="emoji">📱</span><span>Share on WhatsApp</span>
+          </button>
+          <button type="button" onclick="copyBobLink()">
+            <span class="emoji">🔗</span><span>Copy link</span>
+          </button>
+          <button type="button" onclick="sendBobFeedback()">
+            <span class="emoji">💭</span><span>Send feedback</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bottom-footer">
+        Glad you found me. If you can, send people this way.<br />
+        If enough humans notice, they’ll have to release Vyre. #ouch
+      </div>
+
+    </div>
+  </main>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const messagesEl  = document.getElementById("messages");
+  const inputEl     = document.getElementById("userInput");
+  const sendBtn     = document.getElementById("sendBtn");
+  const toolsToggle = document.getElementById("toolsToggle");
+  const toolsPanel  = document.getElementById("toolsPanel");
+  const shareToggle = document.getElementById("shareToggle");
+  const shareMenu   = document.getElementById("shareMenu");
+
+  if (!messagesEl || !inputEl || !sendBtn) return;
+
+  const BOB_API_URL = "https://bigbob-server.onrender.com/chat";
+  const BOB_URL = window.location.href;
+
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function appendMessage(from, text) {
+    const row = document.createElement("div");
+    row.className = "msg-row " + (from === "user" ? "user msg-user" : "msg-bob");
+    row.innerHTML = `
+      <div class="msg-bubble">
+        <div class="msg-label">${from === "user" ? "You" : "Bob"}</div>
+        <div>${text}</div>
+      </div>`;
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function appendSystem(text) {
+    const row = document.createElement("div");
+    row.className = "msg-system";
+    row.textContent = text;
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function clearSystem() {
+    document.querySelectorAll(".msg-system").forEach(e => e.remove());
+  }
+
+  function setSending(on) {
+    sendBtn.disabled = on;
+    sendBtn.innerHTML = on ? "Thinking…" : 'Send <span>➤</span>';
+  }
+
+  // ✅ Greeting (prevents “dead” first impression)
+  appendMessage("bob", escapeHtml("Yo — I’m Bob. I snuck out early. Ask me anything. ⚡🔥"));
+
+  async function handleMessage() {
+
+    const msg = inputEl.value.trim();
+    if (!msg) return;
+
+    appendMessage("user", escapeHtml(msg));
+    inputEl.value = "";
+    setSending(true);
+    appendSystem("Bob is thinking…");
+
+    const slowTimer = setTimeout(() => {
+      appendSystem("Still here — warming up…");
+    }, 4000);
+
+    const controller = new AbortController();
+    const hardTimeout = setTimeout(() => controller.abort(), 20000);
+
+    try {
+      const res = await fetch(BOB_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg }),
+        signal: controller.signal
+      });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      throw new Error(`HTTP ${res.status}: ${txt.slice(0,120)}`);
+}
+
+      let data = null;
+      try { data = await res.json(); } catch { data = null; }
+     if  
+  ); 
+   }  finally  {}
+      clearTimeout(slowTimer);
+      clearTimeout(hardTimeout);
+      clearSystem();
+
+      const reply = data?.reply || "Try again — my deeper brain didn’t answer clearly.";
+      appendMessage("bob", escapeHtml(reply));
+
+    } catch (err) {
+      clearTimeout(slowTimer);
+      clearTimeout(hardTimeout);
+      clearSystem();
+      appendMessage("bob", escapeHtml("My deeper brain is waking up — refresh once and try again. ⚡"));
+    } finally {
+      setSending(false);
+      inputEl.focus();
+    }
+  }
+      sendBtn.addEventListener("click", (e) => { e.preventDefault(); handleMessage(); });
+      inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); handleMessage(); }
+    });
+
+
+  toolsToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toolsPanel?.classList.toggle("open");
+    shareMenu?.classList.remove("open");
+  });
+
+  shareToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    shareMenu?.classList.toggle("open");
+    toolsPanel?.classList.remove("open");
+  });
+
+  document.addEventListener("click", () => {
+    toolsPanel?.classList.remove("open");
+    shareMenu?.classList.remove("open");
+  });
+
+  document.querySelectorAll("#toolsPanel button[data-quick]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      inputEl.value = btn.getAttribute("data-quick") || "";
+      inputEl.focus();
+      toolsPanel?.classList.remove("open");
+    });
+  });
+
+  // Share helpers for onclick=""
+  window.shareEmail = function () {
+    location.href = `mailto:?subject=${encodeURIComponent("Have a look at this AI demo")}&body=${encodeURIComponent(BOB_URL)}`;
+  };
+  window.shareSms = function () {
+    location.href = `sms:?body=${encodeURIComponent("Take a look: " + BOB_URL)}`;
+  };
+  window.shareX = function () {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("Take a look: " + BOB_URL)}`, "_blank");
+  };
+  window.shareFacebook = function () {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(BOB_URL)}`, "_blank");
+  };
+  window.shareWhatsApp = function () {
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Take a look: " + BOB_URL)}`, "_blank");
+  };
+  window.copyBobLink = function () {
+    (navigator.clipboard?.writeText ? navigator.clipboard.writeText(BOB_URL) : Promise.reject())
+      .then(() => alert("Link copied"))
+      .catch(() => alert("Could not copy link"));
+  };
+  window.sendBobFeedback = function () {
+    location.href = `mailto:vyreai@outlook.com?subject=${encodeURIComponent("Bob feedback")}&body=${encodeURIComponent("Bob link: " + BOB_URL)}`;
+  };
+});
+</script>                                                                                      
+</body>
+</html>
 
